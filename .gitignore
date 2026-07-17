@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.next/
+.turbo/
+
+# Env & secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Nest / Prisma
+backend/dist/
+backend/generated/
+
+# Taro / mini-app
+mini-app/dist/
+mini-app/.temp/
+mini-app/.swc/
+
+# Admin web
+admin-web/dist/
+
+# Docker volumes (local)
+.docker-data/
+
+# Test / delivery evidence
+/tmp/
+*.lcov
+
+# Misc
+*.local
+.cache/

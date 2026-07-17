@@ -1,0 +1,39 @@
+import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('EGoFind API')
+    .setDescription('Yi Go Find REST API — unified response `{ code, message, data }`')
+    .setVersion('0.1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api-docs', app, document);
+
+  const port = Number(process.env.PORT || 3000);
+  await app.listen(port);
+  // eslint-disable-next-line no-console
+  console.log(`EGoFind API listening on http://localhost:${port}`);
+  // eslint-disable-next-line no-console
+  console.log(`Swagger: http://localhost:${port}/api-docs`);
+}
+
+bootstrap();

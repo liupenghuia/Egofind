@@ -1,0 +1,33 @@
+{
+  "name": "egofind",
+  "version": "0.1.0",
+  "private": true,
+  "description": "egofind monorepo — NestJS + Taro mini-app + admin web",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev:backend": "pnpm --filter @egofind/backend dev",
+    "dev:admin": "pnpm --filter @egofind/admin-web dev",
+    "dev:mini": "pnpm --filter @egofind/mini-app dev:weapp",
+    "dev": "pnpm run dev:backend",
+    "build:backend": "pnpm --filter @egofind/backend build",
+    "build:admin": "pnpm --filter @egofind/admin-web build",
+    "build": "pnpm run build:backend && pnpm run build:admin",
+    "db:up": "docker compose up -d mysql redis",
+    "db:migrate": "pnpm --filter @egofind/backend prisma:deploy",
+    "db:seed": "pnpm --filter @egofind/backend prisma:seed",
+    "db:generate": "pnpm --filter @egofind/backend prisma:generate",
+    "smoke:api": "bash scripts/smoke-api.sh",
+    "test:backend": "pnpm --filter @egofind/backend test:unit",
+    "lint": "pnpm -r run lint --if-present",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "prepare": "husky || true"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "prettier": "^3.4.2"
+  }
+}

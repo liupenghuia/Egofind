@@ -1,0 +1,64 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: egofind-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: egofind
+      MYSQL_USER: egofind
+      MYSQL_PASSWORD: egofind
+    ports:
+      - "3306:3306"
+    volumes:
+      - egofind_mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: egofind-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - egofind_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: egofind-api
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: mysql://egofind:egofind@mysql:3306/egofind
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: change-me-in-production
+      JWT_EXPIRES_IN: 7d
+      WECHAT_APPID: your-wechat-appid
+      WECHAT_SECRET: your-wechat-secret
+      WECHAT_MOCK: "1"
+    ports:
+      - "3000:3000"
+    profiles:
+      - full
+
+volumes:
+  egofind_mysql_data:
+  egofind_redis_data:

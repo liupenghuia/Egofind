@@ -1,0 +1,46 @@
+{
+  "name": "@egofind/mini-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "egofind WeChat mini-app (Taro 4)",
+  "templateInfo": {
+    "name": "default",
+    "typescript": true,
+    "css": "Sass"
+  },
+  "scripts": {
+    "build:weapp": "taro build --type weapp",
+    "dev:weapp": "npm run build:weapp -- --watch",
+    "lint": "echo skip"
+  },
+  "browserslist": [
+    "last 3 versions",
+    "Android >= 4.1",
+    "ios >= 8"
+  ],
+  "dependencies": {
+    "@babel/runtime": "^7.26.0",
+    "@tarojs/components": "4.0.9",
+    "@tarojs/helper": "4.0.9",
+    "@tarojs/plugin-framework-react": "4.0.9",
+    "@tarojs/plugin-platform-weapp": "4.0.9",
+    "@tarojs/react": "4.0.9",
+    "@tarojs/runtime": "4.0.9",
+    "@tarojs/shared": "4.0.9",
+    "@tarojs/taro": "4.0.9",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.15",
+    "@tarojs/cli": "4.0.9",
+    "@tarojs/webpack5-runner": "4.0.9",
+    "@types/react": "^18.3.18",
+    "babel-preset-taro": "4.0.9",
+    "sass": "^1.83.0",
+    "typescript": "^5.7.2",
+    "webpack": "5.91.0"
+  }
+}

@@ -1,0 +1,316 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum ActiveMode {
+  PASSENGER
+  DRIVER
+}
+
+enum TripStatus {
+  PUBLISHED
+  MATCHING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+enum Visibility {
+  PUBLIC
+  HIDDEN
+}
+
+enum VerifyStatus {
+  NONE
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum MatchStatus {
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum ReportStatus {
+  OPEN
+  REVIEWING
+  CLOSED
+}
+
+enum ReportTargetType {
+  USER
+  DRIVER_TRIP
+  PASSENGER_REQUEST
+  MATCH
+}
+
+model User {
+  id           String      @id @default(cuid())
+  openid       String?     @unique @db.VarChar(64)
+  unionid      String?     @db.VarChar(64)
+  username     String?     @unique @db.VarChar(64)
+  passwordHash String?     @map("password_hash") @db.VarChar(255)
+  nickname     String?     @db.VarChar(128)
+  avatar       String?     @db.VarChar(512)
+  phoneEnc     String?     @map("phone_enc") @db.VarChar(512)
+  phoneMask    String?     @map("phone_mask") @db.VarChar(32)
+  activeMode   ActiveMode  @default(PASSENGER) @map("active_mode")
+  creditScore  Int         @default(100) @map("credit_score")
+  status       Int         @default(1)
+  roles        UserRole[]
+  driverProfile DriverProfile?
+  driverTrips  DriverTrip[]
+  passengerRequests PassengerRequest[]
+  matchesAsDriver    MatchOrder[] @relation("MatchDriver")
+  matchesAsPassenger MatchOrder[] @relation("MatchPassenger")
+  verifications DriverVerification[]
+  reportsFiled  Report[] @relation("Reporter")
+  reportsTarget Report[] @relation("ReportTarget")
+  reviewsFrom   Review[] @relation("ReviewFrom")
+  reviewsTo     Review[] @relation("ReviewTo")
+  notifications Notification[]
+  phoneAccessAsViewer PhoneAccessLog[] @relation("PhoneViewer")
+  phoneAccessAsTarget PhoneAccessLog[] @relation("PhoneTarget")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Role {
+  id          String           @id @default(cuid())
+  code        String           @unique @db.VarChar(64)
+  name        String           @db.VarChar(128)
+  users       UserRole[]
+  permissions RolePermission[]
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  @@map("roles")
+}
+
+model Permission {
+  id        String           @id @default(cuid())
+  code      String           @unique @db.VarChar(64)
+  name      String           @db.VarChar(128)
+  resource  String?          @db.VarChar(64)
+  action    String?          @db.VarChar(64)
+  roles     RolePermission[]
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+
+  @@map("permissions")
+}
+
+model UserRole {
+  userId String @map("user_id")
+  roleId String @map("role_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  roleId       String     @map("role_id")
+  permissionId String     @map("permission_id")
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model DriverProfile {
+  id           String       @id @default(cuid())
+  userId       String       @unique @map("user_id")
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plateNo      String?      @map("plate_no") @db.VarChar(32)
+  carModel     String?      @map("car_model") @db.VarChar(64)
+  carColor     String?      @map("car_color") @db.VarChar(32)
+  verifyStatus VerifyStatus @default(NONE) @map("verify_status")
+  rejectReason String?      @map("reject_reason") @db.VarChar(255)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  @@map("driver_profiles")
+}
+
+model DriverTrip {
+  id            String     @id @default(cuid())
+  userId        String     @map("user_id")
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  originName    String     @map("origin_name") @db.VarChar(255)
+  originLat     Float      @map("origin_lat")
+  originLng     Float      @map("origin_lng")
+  originAdcode  String     @map("origin_adcode") @db.VarChar(12)
+  destName      String     @map("dest_name") @db.VarChar(255)
+  destLat       Float      @map("dest_lat")
+  destLng       Float      @map("dest_lng")
+  destAdcode    String     @map("dest_adcode") @db.VarChar(12)
+  departStart   DateTime   @map("depart_start")
+  departEnd     DateTime   @map("depart_end")
+  seatsTotal    Int        @map("seats_total")
+  seatsLeft     Int        @map("seats_left")
+  priceCents    Int        @default(0) @map("price_cents")
+  vehicleSnap   Json?      @map("vehicle_snap")
+  remark        String?    @db.VarChar(500)
+  status        TripStatus @default(PUBLISHED)
+  publishedAt   DateTime   @default(now()) @map("published_at")
+  matches       MatchOrder[]
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+
+  @@index([originAdcode, status, departStart])
+  @@index([userId, status])
+  @@map("driver_trips")
+}
+
+model PassengerRequest {
+  id            String     @id @default(cuid())
+  userId        String     @map("user_id")
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  originName    String     @map("origin_name") @db.VarChar(255)
+  originLat     Float      @map("origin_lat")
+  originLng     Float      @map("origin_lng")
+  originAdcode  String     @map("origin_adcode") @db.VarChar(12)
+  destName      String     @map("dest_name") @db.VarChar(255)
+  destLat       Float      @map("dest_lat")
+  destLng       Float      @map("dest_lng")
+  destAdcode    String     @map("dest_adcode") @db.VarChar(12)
+  expectStart   DateTime   @map("expect_start")
+  expectEnd     DateTime   @map("expect_end")
+  seatsNeeded   Int        @map("seats_needed")
+  remark        String?    @db.VarChar(500)
+  visibility    Visibility @default(PUBLIC)
+  status        TripStatus @default(PUBLISHED)
+  publishedAt   DateTime   @default(now()) @map("published_at")
+  matches       MatchOrder[]
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+
+  @@index([originAdcode, status, visibility, expectStart])
+  @@index([userId, status])
+  @@map("passenger_requests")
+}
+
+model MatchOrder {
+  id                 String              @id @default(cuid())
+  driverTripId       String              @map("driver_trip_id")
+  passengerRequestId String              @map("passenger_request_id")
+  driverId           String              @map("driver_id")
+  passengerId        String              @map("passenger_id")
+  seats              Int
+  status             MatchStatus         @default(CONFIRMED)
+  confirmedAt        DateTime            @default(now()) @map("confirmed_at")
+  completedAt        DateTime?           @map("completed_at")
+  driverTrip         DriverTrip          @relation(fields: [driverTripId], references: [id], onDelete: Cascade)
+  passengerRequest   PassengerRequest    @relation(fields: [passengerRequestId], references: [id], onDelete: Cascade)
+  driver             User                @relation("MatchDriver", fields: [driverId], references: [id], onDelete: Cascade)
+  passenger          User                @relation("MatchPassenger", fields: [passengerId], references: [id], onDelete: Cascade)
+  reviews            Review[]
+  phoneAccessLogs    PhoneAccessLog[]
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+
+  @@unique([driverTripId, passengerRequestId])
+  @@index([driverId, status])
+  @@index([passengerId, status])
+  @@map("match_orders")
+}
+
+model DriverVerification {
+  id           String       @id @default(cuid())
+  userId       String       @map("user_id")
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  realName     String?      @map("real_name") @db.VarChar(64)
+  idCardMask   String?      @map("id_card_mask") @db.VarChar(32)
+  licenseImg   String?      @map("license_img") @db.VarChar(512)
+  vehicleImg   String?      @map("vehicle_img") @db.VarChar(512)
+  plateNo      String?      @map("plate_no") @db.VarChar(32)
+  carModel     String?      @map("car_model") @db.VarChar(64)
+  carColor     String?      @map("car_color") @db.VarChar(32)
+  status       VerifyStatus @default(PENDING)
+  rejectReason String?      @map("reject_reason") @db.VarChar(255)
+  reviewedAt   DateTime?    @map("reviewed_at")
+  reviewerId   String?      @map("reviewer_id") @db.VarChar(64)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  @@index([userId, status])
+  @@map("driver_verifications")
+}
+
+model Report {
+  id           String           @id @default(cuid())
+  reporterId   String           @map("reporter_id")
+  targetUserId String?          @map("target_user_id")
+  targetType   ReportTargetType @map("target_type")
+  targetId     String           @map("target_id") @db.VarChar(64)
+  reasonCode   String           @map("reason_code") @db.VarChar(64)
+  detail       String?          @db.VarChar(1000)
+  status       ReportStatus     @default(OPEN)
+  adminNote    String?          @map("admin_note") @db.VarChar(1000)
+  reporter     User             @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetUser   User?            @relation("ReportTarget", fields: [targetUserId], references: [id], onDelete: SetNull)
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+
+  @@index([status, createdAt])
+  @@map("reports")
+}
+
+model Review {
+  id           String     @id @default(cuid())
+  matchOrderId String     @map("match_order_id")
+  fromUserId   String     @map("from_user_id")
+  toUserId     String     @map("to_user_id")
+  rating       Int
+  tags         Json?
+  content      String?    @db.VarChar(500)
+  matchOrder   MatchOrder @relation(fields: [matchOrderId], references: [id], onDelete: Cascade)
+  fromUser     User       @relation("ReviewFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser       User       @relation("ReviewTo", fields: [toUserId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@unique([matchOrderId, fromUserId])
+  @@map("reviews")
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String    @db.VarChar(64)
+  title     String    @db.VarChar(128)
+  body      String    @db.VarChar(512)
+  payload   Json?
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+model PhoneAccessLog {
+  id           String      @id @default(cuid())
+  viewerId     String      @map("viewer_id")
+  targetUserId String      @map("target_user_id")
+  matchOrderId String?     @map("match_order_id")
+  viewer       User        @relation("PhoneViewer", fields: [viewerId], references: [id], onDelete: Cascade)
+  targetUser   User        @relation("PhoneTarget", fields: [targetUserId], references: [id], onDelete: Cascade)
+  matchOrder   MatchOrder? @relation(fields: [matchOrderId], references: [id], onDelete: SetNull)
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  @@index([viewerId, createdAt])
+  @@map("phone_access_logs")
+}

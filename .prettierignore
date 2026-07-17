@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+coverage
+.next
+.turbo
+.miniprogram
+pnpm-lock.yaml
+*.min.js
+docs/delivery-evidence
