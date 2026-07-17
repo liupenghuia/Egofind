@@ -7,10 +7,14 @@ import { TripStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateDriverTripDto } from './dto/create-driver-trip.dto';
 import { ErrorCode } from '../common/constants/error-codes';
+import { TencentMapService } from '../map/tencent-map.service';
 
 @Injectable()
 export class DriverTripsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly tencentMap: TencentMapService,
+  ) {}
 
   async create(userId: string, dto: CreateDriverTripDto) {
     const profile = await this.prisma.driverProfile.findUnique({ where: { userId } });
@@ -34,17 +38,22 @@ export class DriverTripsService {
       });
     }
 
+    const [origin, dest] = await Promise.all([
+      this.tencentMap.enrichPlace(dto.origin),
+      this.tencentMap.enrichPlace(dto.dest),
+    ]);
+
     return this.prisma.driverTrip.create({
       data: {
         userId,
-        originName: dto.origin.name,
-        originLat: dto.origin.lat,
-        originLng: dto.origin.lng,
-        originAdcode: dto.origin.adcode,
-        destName: dto.dest.name,
-        destLat: dto.dest.lat,
-        destLng: dto.dest.lng,
-        destAdcode: dto.dest.adcode,
+        originName: origin.name,
+        originLat: origin.lat,
+        originLng: origin.lng,
+        originAdcode: origin.adcode,
+        destName: dest.name,
+        destLat: dest.lat,
+        destLng: dest.lng,
+        destAdcode: dest.adcode,
         departStart: start,
         departEnd: end,
         seatsTotal: dto.seatsTotal,

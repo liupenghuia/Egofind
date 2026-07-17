@@ -22,10 +22,15 @@ export class GeoPlaceDto {
   @Max(180)
   lng!: number;
 
-  @ApiProperty({ example: '130128' })
+  @ApiProperty({
+    example: '130128',
+    required: false,
+    description: '可省略；服务端将按 lat/lng 逆地理补全',
+  })
+  @IsOptional()
   @IsString()
   @MaxLength(12)
-  adcode!: string;
+  adcode?: string;
 }
 
 export class TimeWindowDto {

@@ -96,7 +96,8 @@ curl -s -X POST http://localhost:3000/auth/admin/login \
 | `PHONE_ENCRYPTION_KEY` | 手机号 AES 加密 |
 | `MATCH_SCOPE` | `county`（默认）或 `city` |
 | `MATCH_DMAX_KM` | 距离满分上限 km |
-| `TENCENT_MAP_KEY` | 服务端地图 WebService（可选） |
+| `TENCENT_MAP_KEY` | 腾讯 WebService（逆地理补 adcode） |
+| `DEFAULT_ADCODE` | 无 Key / 失败时默认区县 |
 | `TARO_APP_API_BASE` | 小程序 API 根地址 |
 | `mini-app/project.config.json` → `appid` | 替换为真实小程序 AppID |
 
@@ -136,8 +137,9 @@ pnpm smoke:api
 
 - [ ] 本机安装 Docker 后完整 migrate 冒烟（`./scripts/dev-stack.sh`）
 - [x] 微信 `getPhoneNumber` code 换号 + session_key 旧版解密 + mock
-- [x] 小程序 `chooseLocation` 选点（adcode 默认 env）
-- [ ] 逆地理补全真实 adcode（腾讯 WebService）
+- [x] 小程序 `chooseLocation` 选点 + 逆地理 adcode
+- [x] 腾讯逆地理 WebService（`/map/reverse-geocode`，无 Key mock）
+- [x] 发布接口服务端 enrichPlace 双保险
 - [ ] 管理端嵌入腾讯地图 JS SDK
 - [ ] 发布频控、敏感词、对象存储证件图
 - [ ] 对齐 `product.yaml` delivery checks 到新栈

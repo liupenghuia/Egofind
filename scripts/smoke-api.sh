@@ -42,6 +42,15 @@ if [[ -n "$TOKEN" ]]; then
     -d "{\"origin\":{\"name\":\"A\",\"lat\":38.184,\"lng\":115.201,\"adcode\":\"130128\"},\"dest\":{\"name\":\"B\",\"lat\":38.19,\"lng\":115.21,\"adcode\":\"130128\"},\"departStart\":\"$START\",\"departEnd\":\"$END\",\"seatsTotal\":3,\"priceCents\":1500}"
   echo
 
+  echo "== map status =="
+  curl -sf "$BASE/map/status" || true
+  echo
+
+  echo "== reverse geocode =="
+  curl -sf "$BASE/map/reverse-geocode?lat=38.184&lng=115.201" \
+    -H "Authorization: Bearer $TOKEN" | tee /tmp/egofind-regeo.json
+  echo
+
   echo "== map markers passenger =="
   curl -sf "$BASE/map/markers?mode=passenger&adcode=130128" \
     -H "Authorization: Bearer $TOKEN"

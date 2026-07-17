@@ -7,10 +7,14 @@ import { TripStatus, Visibility } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePassengerRequestDto } from './dto/create-passenger-request.dto';
 import { ErrorCode } from '../common/constants/error-codes';
+import { TencentMapService } from '../map/tencent-map.service';
 
 @Injectable()
 export class PassengerRequestsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly tencentMap: TencentMapService,
+  ) {}
 
   async create(userId: string, dto: CreatePassengerRequestDto) {
     const start = new Date(dto.expectStart);
@@ -22,17 +26,22 @@ export class PassengerRequestsService {
       });
     }
 
+    const [origin, dest] = await Promise.all([
+      this.tencentMap.enrichPlace(dto.origin),
+      this.tencentMap.enrichPlace(dto.dest),
+    ]);
+
     return this.prisma.passengerRequest.create({
       data: {
         userId,
-        originName: dto.origin.name,
-        originLat: dto.origin.lat,
-        originLng: dto.origin.lng,
-        originAdcode: dto.origin.adcode,
-        destName: dto.dest.name,
-        destLat: dto.dest.lat,
-        destLng: dto.dest.lng,
-        destAdcode: dto.dest.adcode,
+        originName: origin.name,
+        originLat: origin.lat,
+        originLng: origin.lng,
+        originAdcode: origin.adcode,
+        destName: dest.name,
+        destLat: dest.lat,
+        destLng: dest.lng,
+        destAdcode: dest.adcode,
         expectStart: start,
         expectEnd: end,
         seatsNeeded: dto.seatsNeeded,

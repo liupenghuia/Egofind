@@ -72,7 +72,11 @@ export default function PublishDriver() {
         {dest.name}
       </Button>
       <View style={{ marginTop: 16, fontSize: 24, color: '#888' }}>
-        adcode: {origin.adcode}（选点后默认县域，可在 env 配置 TARO_APP_DEFAULT_ADCODE）
+        出发 adcode: {origin.adcode}
+        {origin.source ? ` (${origin.source})` : ''} · 到达: {dest.adcode}
+      </View>
+      <View style={{ fontSize: 22, color: '#aaa' }}>
+        选点后走服务端腾讯逆地理；无 Key 时为 mock 区县
       </View>
       <View style={{ marginTop: 16 }}>余座</View>
       <Input value={seats} onInput={(e) => setSeats(e.detail.value)} type="number" />

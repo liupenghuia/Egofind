@@ -32,3 +32,24 @@ const cos = directionCosine(0, 0, 1, 1, 0, 0, 2, 2);
 assert(Math.abs(cos - 1) < 1e-6, `cos ${cos}`);
 
 console.log('geo checks OK');
+
+// adcode normalize (inline mirror of service rules)
+function normalizeAdcode(raw, fallback = '130128') {
+  if (!raw) return fallback;
+  const s = String(raw).replace(/\D/g, '');
+  if (s.length >= 6) return s.slice(0, 6);
+  if (s.length === 4) return `${s}00`;
+  return fallback;
+}
+function needsEnrichment(adcode) {
+  if (!adcode) return true;
+  const s = String(adcode).replace(/\D/g, '');
+  if (s.length < 6) return true;
+  if (/^0+$/.test(s)) return true;
+  return false;
+}
+assert(normalizeAdcode('130128') === '130128', 'norm6');
+assert(normalizeAdcode('1301') === '130100', 'norm4');
+assert(needsEnrichment('') === true, 'need empty');
+assert(needsEnrichment('130128') === false, 'need ok');
+console.log('adcode normalize checks OK');

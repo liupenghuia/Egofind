@@ -27,8 +27,8 @@ WECHAT_MOCK=1
 
 确认同行后，乘客：`GET /users/contact-phone/:matchOrderId`（审计日志）。
 
-## 地图
+## 地图与 adcode
 
-- 小程序：`Taro.chooseLocation` / `<Map>`  
-- 默认 adcode：`TARO_APP_DEFAULT_ADCODE`（未逆地理时）  
+- 小程序：`Taro.chooseLocation` → `GET /map/reverse-geocode` 补 adcode  
+- 详见 [map-adcode.md](./map-adcode.md)  
 - 服务端匹配：`MATCH_SCOPE=county|city`，`MATCH_DMAX_KM`
