@@ -7,6 +7,7 @@ export default defineAppConfig({
     'pages/map/index',
     'pages/list/index',
     'pages/detail/index',
+    'pages/feedback/index',
     'pages/mine/index',
   ],
   window: {

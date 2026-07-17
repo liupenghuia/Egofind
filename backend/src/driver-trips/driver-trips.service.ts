@@ -8,15 +8,19 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateDriverTripDto } from './dto/create-driver-trip.dto';
 import { ErrorCode } from '../common/constants/error-codes';
 import { TencentMapService } from '../map/tencent-map.service';
+import { TripFeedbacksService, tripAcceptMeta } from '../trip-feedbacks/trip-feedbacks.service';
 
 @Injectable()
 export class DriverTripsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tencentMap: TencentMapService,
+    private readonly tripFeedbacks: TripFeedbacksService,
   ) {}
 
   async create(userId: string, dto: CreateDriverTripDto) {
+    await this.tripFeedbacks.assertDriverNotRestricted(userId, 'publish');
+
     const profile = await this.prisma.driverProfile.findUnique({ where: { userId } });
     // Allow publish if approved OR no strict gate in dev; still attach vehicle snap
     const vehicleSnap =
@@ -84,7 +88,11 @@ export class DriverTripsService {
     if (!trip) {
       throw new NotFoundException({ code: ErrorCode.NOT_FOUND, message: 'Trip not found' });
     }
-    return trip;
+    const accept = tripAcceptMeta(trip);
+    return {
+      ...trip,
+      ...accept,
+    };
   }
 
   async mine(userId: string) {

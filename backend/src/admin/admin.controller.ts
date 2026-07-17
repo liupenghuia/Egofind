@@ -6,6 +6,7 @@ import { UsersService } from '../users/users.service';
 import { DriverVerificationsService } from '../driver-verifications/driver-verifications.service';
 import { ReportsService } from '../reports/reports.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { TripFeedbacksService } from '../trip-feedbacks/trip-feedbacks.service';
 import { CurrentUser, JwtPayloadUser } from '../common/decorators/current-user.decorator';
 import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -39,6 +40,7 @@ export class AdminController {
     private readonly verifications: DriverVerificationsService,
     private readonly reports: ReportsService,
     private readonly prisma: PrismaService,
+    private readonly tripFeedbacks: TripFeedbacksService,
   ) {}
 
   @Get('stats/by-adcode')
@@ -116,6 +118,15 @@ export class AdminController {
     @Body() dto: SetStatusDto,
   ) {
     return this.users.setStatus(admin.id, id, dto.status);
+  }
+
+  @Get('trip-feedbacks')
+  @ApiOperation({ summary: '无法同行反馈列表 + 本月司机原因聚合' })
+  listTripFeedbacks(
+    @Query('yearMonth') yearMonth?: string,
+    @Query('driverId') driverId?: string,
+  ) {
+    return this.tripFeedbacks.listForAdmin({ yearMonth, driverId });
   }
 
   @Get('map/preview')

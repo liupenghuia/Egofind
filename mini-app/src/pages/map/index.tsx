@@ -2,7 +2,7 @@ import { View, Map, Text, Button } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import { useState } from 'react';
 import { useUserStore } from '../../stores/user';
-import { mapMarkers } from '../../services/trips';
+import { getDriverQuotaStatus, mapMarkers } from '../../services/trips';
 import { locateCurrentPlace } from '../../utils/location';
 
 export default function MapPage() {
@@ -10,6 +10,7 @@ export default function MapPage() {
   const [adcode, setAdcode] = useState('130128');
   const [center, setCenter] = useState({ lat: 38.184, lng: 115.201 });
   const [regionLabel, setRegionLabel] = useState('默认演示区县');
+  const [restrictTip, setRestrictTip] = useState<string | null>(null);
   const [markers, setMarkers] = useState<
     {
       id: number;
@@ -24,19 +25,34 @@ export default function MapPage() {
   >([]);
 
   const load = async (code: string) => {
-    const list = await mapMarkers(mode, code);
-    setMarkers(
-      list.map((m, i) => ({
-        id: i + 1,
-        latitude: m.lat,
-        longitude: m.lng,
-        title: m.title,
-        width: 24,
-        height: 24,
-        rawId: m.id,
-        type: m.type,
-      })),
-    );
+    try {
+      if (mode === 'driver') {
+        const st = await getDriverQuotaStatus();
+        if (st.restricted) {
+          setRestrictTip(st.message);
+          setMarkers([]);
+          return;
+        }
+        setRestrictTip(null);
+      } else {
+        setRestrictTip(null);
+      }
+      const list = await mapMarkers(mode, code);
+      setMarkers(
+        list.map((m, i) => ({
+          id: i + 1,
+          latitude: m.lat,
+          longitude: m.lng,
+          title: m.title,
+          width: 24,
+          height: 24,
+          rawId: m.id,
+          type: m.type,
+        })),
+      );
+    } catch {
+      setMarkers([]);
+    }
   };
 
   const refreshRegion = async () => {
@@ -65,6 +81,11 @@ export default function MapPage() {
   return (
     <View>
       <View style={{ padding: 16, background: '#fff' }}>
+        {restrictTip && (
+          <View style={{ background: '#fff2f0', color: '#a8071a', padding: 12, marginBottom: 12 }}>
+            {restrictTip}
+          </View>
+        )}
         <Text>
           {mode === 'passenger' ? '附近车找人' : '附近人找车（仅公开）'}
         </Text>

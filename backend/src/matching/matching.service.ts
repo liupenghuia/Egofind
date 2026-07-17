@@ -15,6 +15,7 @@ import {
 } from '../common/utils/geo';
 import { ErrorCode } from '../common/constants/error-codes';
 import { NotificationsService } from '../notifications/notifications.service';
+import { TripFeedbacksService } from '../trip-feedbacks/trip-feedbacks.service';
 
 @Injectable()
 export class MatchingService {
@@ -22,6 +23,7 @@ export class MatchingService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly notifications: NotificationsService,
+    private readonly tripFeedbacks: TripFeedbacksService,
   ) {}
 
   private scope(): 'county' | 'city' {
@@ -98,6 +100,8 @@ export class MatchingService {
   }
 
   async forDriver(tripId: string, userId: string) {
+    await this.tripFeedbacks.assertDriverNotRestricted(userId, 'search');
+
     const trip = await this.prisma.driverTrip.findUnique({ where: { id: tripId } });
     if (!trip) {
       throw new NotFoundException({ code: ErrorCode.NOT_FOUND, message: 'Trip not found' });

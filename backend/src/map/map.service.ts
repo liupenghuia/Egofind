@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { sameRegion } from '../common/utils/geo';
 import { TencentMapService } from './tencent-map.service';
 import { ErrorCode } from '../common/constants/error-codes';
+import { TripFeedbacksService } from '../trip-feedbacks/trip-feedbacks.service';
 
 @Injectable()
 export class MapService {
@@ -12,6 +13,7 @@ export class MapService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly tencentMap: TencentMapService,
+    private readonly tripFeedbacks: TripFeedbacksService,
   ) {}
 
   private scope(): 'county' | 'city' {
@@ -24,12 +26,18 @@ export class MapService {
    */
   async markers(params: {
     mode: 'passenger' | 'driver';
+    userId?: string;
     adcode?: string;
     minLat?: number;
     maxLat?: number;
     minLng?: number;
     maxLng?: number;
   }) {
+    // 司机模式=查找乘客：受月额度限制
+    if (params.mode === 'driver' && params.userId) {
+      await this.tripFeedbacks.assertDriverNotRestricted(params.userId, 'search');
+    }
+
     const now = new Date();
     const limit = 200;
     const filterAdcode = params.adcode

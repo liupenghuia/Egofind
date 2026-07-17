@@ -52,6 +52,12 @@ enum ReportTargetType {
   MATCH
 }
 
+/// 无法同行反馈：司机原因计入月额度；个人原因仅记录
+enum TripFeedbackReason {
+  DRIVER_REASON
+  PASSENGER_REASON
+}
+
 model User {
   id           String      @id @default(cuid())
   openid       String?     @unique @db.VarChar(64)
@@ -79,6 +85,8 @@ model User {
   notifications Notification[]
   phoneAccessAsViewer PhoneAccessLog[] @relation("PhoneViewer")
   phoneAccessAsTarget PhoneAccessLog[] @relation("PhoneTarget")
+  tripFeedbacksAsDriver    TripFeedback[] @relation("FeedbackDriver")
+  tripFeedbacksAsPassenger TripFeedback[] @relation("FeedbackPassenger")
   createdAt    DateTime    @default(now()) @map("created_at")
   updatedAt    DateTime    @updatedAt @map("updated_at")
 
@@ -167,12 +175,32 @@ model DriverTrip {
   status        TripStatus @default(PUBLISHED)
   publishedAt   DateTime   @default(now()) @map("published_at")
   matches       MatchOrder[]
+  tripFeedbacks TripFeedback[]
   createdAt     DateTime   @default(now()) @map("created_at")
   updatedAt     DateTime   @updatedAt @map("updated_at")
 
   @@index([originAdcode, status, departStart])
   @@index([userId, status])
   @@map("driver_trips")
+}
+
+model TripFeedback {
+  id           String             @id @default(cuid())
+  driverTripId String             @map("driver_trip_id")
+  driverId     String             @map("driver_id")
+  passengerId  String             @map("passenger_id")
+  reason       TripFeedbackReason
+  remark       String?            @db.VarChar(100)
+  /// 上海时区自然月，如 2026-07
+  yearMonth    String             @map("year_month") @db.VarChar(7)
+  driverTrip   DriverTrip         @relation(fields: [driverTripId], references: [id], onDelete: Cascade)
+  driver       User               @relation("FeedbackDriver", fields: [driverId], references: [id], onDelete: Cascade)
+  passenger    User               @relation("FeedbackPassenger", fields: [passengerId], references: [id], onDelete: Cascade)
+  createdAt    DateTime           @default(now()) @map("created_at")
+
+  @@unique([driverTripId, passengerId])
+  @@index([driverId, yearMonth, reason])
+  @@map("trip_feedbacks")
 }
 
 model PassengerRequest {

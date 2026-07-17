@@ -52,3 +52,24 @@ export const myPassengerRequests = () => request('/passenger-requests/mine');
 export const myMatches = () => request('/matching/mine');
 
 export const report = (data: unknown) => request('/reports', { method: 'POST', data });
+
+export type TripFeedbackReason = 'DRIVER_REASON' | 'PASSENGER_REASON';
+
+export const submitTripFeedback = (data: {
+  driverTripId: string;
+  reason: TripFeedbackReason;
+  remark?: string;
+}) => request('/trip-feedbacks', { method: 'POST', data });
+
+export type DriverQuotaStatus = {
+  yearMonth: string;
+  driverReasonCount: number;
+  limit: number;
+  remaining: number;
+  restricted: boolean;
+  message: string;
+  resetHint: string;
+};
+
+export const getDriverQuotaStatus = () =>
+  request<DriverQuotaStatus>('/trip-feedbacks/me/driver-status');

@@ -15,6 +15,7 @@ import { ReportsModule } from './reports/reports.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { DriverVerificationsModule } from './driver-verifications/driver-verifications.module';
 import { AdminModule } from './admin/admin.module';
+import { TripFeedbacksModule } from './trip-feedbacks/trip-feedbacks.module';
 import { HealthController } from './health/health.controller';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
@@ -40,6 +41,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     ReportsModule,
     ReviewsModule,
     DriverVerificationsModule,
+    TripFeedbacksModule,
     AdminModule,
   ],
   controllers: [HealthController],

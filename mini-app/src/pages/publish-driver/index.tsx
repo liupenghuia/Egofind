@@ -1,7 +1,7 @@
 import { View, Input, Button, Textarea, Text } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useDidShow } from '@tarojs/taro';
 import { useState } from 'react';
-import { createDriverTrip } from '../../services/trips';
+import { createDriverTrip, getDriverQuotaStatus } from '../../services/trips';
 import { choosePlace, type Place } from '../../utils/location';
 
 const DEMO_ORIGIN: Place = {
@@ -24,8 +24,22 @@ export default function PublishDriver() {
   const [price, setPrice] = useState('15');
   const [remark, setRemark] = useState('');
   const [plateNo, setPlateNo] = useState('冀A·DEMO');
+  const [restrictedMsg, setRestrictedMsg] = useState<string | null>(null);
+
+  useDidShow(() => {
+    getDriverQuotaStatus()
+      .then((s) => {
+        if (s.restricted) setRestrictedMsg(s.message);
+        else setRestrictedMsg(null);
+      })
+      .catch(() => undefined);
+  });
 
   const submit = async () => {
+    if (restrictedMsg) {
+      Taro.showModal({ title: '无法发布', content: restrictedMsg, showCancel: false });
+      return;
+    }
     const start = new Date();
     start.setHours(start.getHours() + 1);
     const end = new Date(start.getTime() + 60 * 60 * 1000);
@@ -45,6 +59,11 @@ export default function PublishDriver() {
 
   return (
     <View style={{ padding: 24 }}>
+      {restrictedMsg && (
+        <View style={{ background: '#fff2f0', color: '#a8071a', padding: 12, marginBottom: 16 }}>
+          {restrictedMsg}
+        </View>
+      )}
       <Text style={{ fontWeight: 600 }}>出发地</Text>
       <Button
         size="mini"

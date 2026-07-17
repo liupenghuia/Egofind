@@ -17,6 +17,7 @@ const items = [
   { key: '/orders', icon: <CarOutlined />, label: <Link to="/orders">订单管理</Link> },
   { key: '/verifications', icon: <AuditOutlined />, label: <Link to="/verifications">司机认证</Link> },
   { key: '/map', icon: <EnvironmentOutlined />, label: <Link to="/map">地图预览</Link> },
+  { key: '/feedbacks', icon: <AuditOutlined />, label: <Link to="/feedbacks">无法同行反馈</Link> },
 ];
 
 export default function AdminLayout() {

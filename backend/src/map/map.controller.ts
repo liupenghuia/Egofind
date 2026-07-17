@@ -2,6 +2,7 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { MapService } from './map.service';
 import { Public } from '../common/decorators/public.decorator';
+import { CurrentUser, JwtPayloadUser } from '../common/decorators/current-user.decorator';
 
 @ApiTags('map')
 @ApiBearerAuth()
@@ -25,6 +26,7 @@ export class MapController {
   @ApiQuery({ name: 'minLng', required: false })
   @ApiQuery({ name: 'maxLng', required: false })
   markers(
+    @CurrentUser() user: JwtPayloadUser,
     @Query('mode') mode: 'passenger' | 'driver' = 'passenger',
     @Query('adcode') adcode?: string,
     @Query('minLat') minLat?: string,
@@ -34,6 +36,7 @@ export class MapController {
   ) {
     return this.service.markers({
       mode: mode === 'driver' ? 'driver' : 'passenger',
+      userId: user?.id,
       adcode,
       minLat: minLat != null ? Number(minLat) : undefined,
       maxLat: maxLat != null ? Number(maxLat) : undefined,

@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { DriverTripsController } from './driver-trips.controller';
 import { DriverTripsService } from './driver-trips.service';
 import { MapModule } from '../map/map.module';
+import { TripFeedbacksModule } from '../trip-feedbacks/trip-feedbacks.module';
 
 @Module({
-  imports: [MapModule],
+  imports: [MapModule, TripFeedbacksModule],
   controllers: [DriverTripsController],
   providers: [DriverTripsService],
   exports: [DriverTripsService],
