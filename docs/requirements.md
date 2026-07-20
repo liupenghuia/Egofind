@@ -24,6 +24,12 @@
 6. 举报、互评、订单生命周期
 7. 管理后台：用户/订单/审核/统计
 
+## Active product slice (2026-07-20)
+
+- **TASK-20260720-001**：乘客地图点司机标记 → 可读行程摘要 → 仅确认同行后可电话。  
+- UI Spec：`docs/ui/specs/map-driver-summary-confirm-call.md`（待用户确认）。  
+- 范围：仅小程序；管理端 N/A。
+
 ## Non-Goals
 
 - 在线支付、实时轨迹、IM、跨城长途、强制派单
