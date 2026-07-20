@@ -1,0 +1,39 @@
+// EGoFind design tokens — keep in sync with docs/ui/design-system.md
+// Taro designWidth 750: values written in px here map to rpx-scale in docs.
+
+$color-bg-page: #f5f6f8;
+$color-bg-card: #ffffff;
+$color-bg-muted: #eef0f3;
+$color-text-primary: #1f1f1f;
+$color-text-secondary: #8c8c8c;
+$color-text-inverse: #ffffff;
+$color-border: #e5e6eb;
+
+$color-brand: #1677ff;
+$color-brand-soft: #e6f4ff;
+$color-driver: #0b6e4f;
+$color-driver-soft: #e6f6ef;
+
+$color-success: #52c41a;
+$color-warning: #faad14;
+$color-danger: #ff4d4f;
+$color-map-driver: #1677ff;
+$color-map-passenger: #fa8c16;
+
+$font-xs: 22px;
+$font-sm: 24px;
+$font-md: 28px;
+$font-lg: 32px;
+$font-xl: 36px;
+$font-xxl: 40px;
+
+$space-xs: 8px;
+$space-sm: 16px;
+$space-md: 24px;
+$space-lg: 32px;
+$space-xl: 48px;
+
+$radius-sm: 8px;
+$radius-md: 16px;
+$radius-lg: 24px;
+$radius-pill: 999px;

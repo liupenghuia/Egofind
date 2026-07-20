@@ -3,6 +3,7 @@
 ## Load Before Work
 
 - Read root `AGENTS.md`, `docs/client-architecture.md`, OpenAPI, task/issues.
+- Prefer Ant Design 5 patterns; when a UI Spec targets `admin-web` or `both`, read `docs/ui/specs/` and `docs/roles/ui-design.md`.
 - Complete `docs/code-quality-prerequisites.md` before coding.
 - Complete client-architecture pre-coding check when delivery mode is active.
 

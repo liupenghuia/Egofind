@@ -9,8 +9,8 @@ Quality mode: code-first
 1. This file (product overlay)
 2. `product.yaml`
 3. Kit / product docs: `docs/delivery-workflow.md`, `docs/code-quality-prerequisites.md`
-4. Nearest role `AGENTS.md` under `backend/`, `frontend/`, `mobile/`, `tests/`
-5. Active task acceptance criteria and linked issues
+4. Nearest role `AGENTS.md` under `backend/`, `mini-app/`, `admin-web/`, `tests/` (and `docs/roles/` for non-package roles such as UI Design)
+5. Active task acceptance criteria, linked issues, and approved UI Specs under `docs/ui/specs/` when UI is in scope
 
 Role instructions may tighten, but never weaken, this contract.  
 Preserve unrelated user changes; never discard work to resolve a conflict silently.
@@ -37,9 +37,13 @@ When the user requests closed-loop delivery, also follow `docs/delivery-workflow
 ## Product Owner Entry Point
 
 - Prefer `docs/product-request-template.md` for non-technical requests.
-- Product owns scope and acceptance; Architect owns technical boundaries; implementation agents own code; Test owns independent evidence.
-- `顺序完成` continues through reversible repository phases without confirmation between steps.
-- Pause only for product tradeoffs, production release, real user data, secrets, paid external actions, irreversible changes, or unavailable required platform access.
+- **Pipeline source of truth:** `docs/delivery-pipeline.md` + `docs/roles/orchestrator.md`.
+- Product owns scope and acceptance; **UI Design owns UI Specs** (`docs/ui/`); Architect owns technical boundaries; implementation agents own code; Test owns independent evidence.
+- When the user says **`顺序完成`** or **`交付`**, act as Orchestrator and **auto-chain** without waiting for per-role commands:
+  1. Product → 2. UI Design (if client UI in scope) → 3. Architect → 4. Backend / Mini-App / Web → 5. Test → runner as applicable.
+- UI Design **starts automatically** from Product outputs (task, flows, acceptance); Spec is pipeline-`Approved` unless the user said `UI 需我确认` or `跳过 UI 设计`.
+- Pause only for product tradeoffs, explicit UI confirmation request, production release, real user data, secrets, paid external actions, irreversible changes, or unavailable required platform access.
+- Single-role commands (`产品` / `UI设计` / `架构` / …) still work for isolated work; they do **not** start the full chain unless combined with `顺序完成` / `交付`.
 
 ## Sources of Truth
 
@@ -51,10 +55,13 @@ When the user requests closed-loop delivery, also follow `docs/delivery-workflow
 | Product behavior | `docs/requirements.md`, task acceptance criteria |
 | System boundaries | `docs/architecture.md` |
 | Client structure | `docs/client-architecture.md` |
+| UI / visual system | `docs/ui/design-system.md`, `docs/ui/specs/*` |
+| UI Design role | `docs/roles/ui-design.md` |
 | HTTP contract | `docs/openapi.yaml` |
 | Data model | `docs/database.md` |
 | Delivery state | YAML front matter in `tasks/*.md` and `issues/*.md` |
 | Gates and transitions | `docs/delivery-workflow.md` |
+| Sequential agent pipeline | `docs/delivery-pipeline.md` |
 | Test policy | `docs/testing.md` |
 
 ## Role Commands

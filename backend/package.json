@@ -15,7 +15,8 @@
     "prisma:seed": "prisma db seed",
     "prisma:studio": "prisma studio",
     "check:geo": "node scripts/check-geo.mjs",
-    "test:unit": "pnpm run build && pnpm run check:geo"
+    "test:unit": "pnpm run build && pnpm run check:geo",
+    "test": "pnpm run test:unit"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -36,6 +36,8 @@ blocked_reason: null
 blocked_since: null
 unblock_owner: null
 unblock_condition: null
+# UI Spec path under docs/ui/specs/, or N/A when UI Design is skipped
+ui_spec: null
 ---
 
 # Task: Feature Name
@@ -48,6 +50,12 @@ unblock_condition: null
 ## Goal
 
 Describe the observable user or business outcome.
+
+## UI Design
+
+- Spec path: `docs/ui/specs/<slug>.md` or `N/A` (bugfix / pure logic / user skipped).
+- Spec status: `Draft` | `Ready for Review` | `Approved` | `N/A`
+- Command sequence: `UI设计 <name>` → user confirms → `小程序 <name>` / `Web <name>`
 
 ## Users And Assumptions
 
@@ -106,9 +114,15 @@ Complete one row per selected Frontend, Mini Program, Web, shared Mobile, iOS, o
 - [ ] Work or `N/A` reason:
 - [ ] Aggregate frontend status and cross-target decision:
 
+### UI Design
+
+- [ ] Spec written or `N/A` reason:
+- [ ] User approved Spec (or skip recorded):
+
 ### WeChat Mini Program
 
 - [ ] Work or `N/A` reason:
+- [ ] Follows Approved Spec / design-system defaults:
 - [ ] UI states and tests:
 
 ### Web

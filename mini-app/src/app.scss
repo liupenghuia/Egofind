@@ -1,5 +1,7 @@
+@use './styles/tokens.scss' as *;
+
 page {
-  background: #f5f6f8;
-  color: #1f1f1f;
-  font-size: 28px;
+  background: $color-bg-page;
+  color: $color-text-primary;
+  font-size: $font-md;
 }

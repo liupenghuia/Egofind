@@ -14,6 +14,14 @@
 
 Follow `docs/product-discovery.md`. Product Agent must distinguish facts, assumptions, and unknowns; only the recorded decision owner may approve, park, or reject an idea.
 
+## Phase Pipeline (EGoFind)
+
+When the user requests `顺序完成` or `交付`, follow **`docs/delivery-pipeline.md`**:
+
+1. Product → 2. UI Design (if client UI in scope) → 3. Architect → 4. Implementation scopes → 5. Test → 6. local runner as applicable.
+
+UI Design **auto-starts** after Product for miniprogram/web user-facing work; Architect **auto-starts** after UI Design (or after Product when UI is `N/A`). Do not wait for separate role commands between phases unless a documented pause rule applies.
+
 ## Preflight
 
 1. Load the role instructions, root instructions, task, source documents, and linked issues.
@@ -22,6 +30,7 @@ Follow `docs/product-discovery.md`. Product Agent must distinguish facts, assump
 4. Do not start a new feature when the role owns a `P0`/`P1` issue or the task has an unresolved blocking issue.
 5. Confirm dependencies are `Done`; otherwise set the task to `Blocked` and document the unblock condition.
 6. Before editing Frontend, Mini Program, Web, shared Mobile, iOS, or Android code, complete and record the check in `docs/client-architecture.md`. Unresolved review triggers return to Architect before implementation.
+7. Before Mini Program / Web implementation of new or major UI, ensure `ui_spec` is `Approved` or explicitly `N/A` per `docs/delivery-pipeline.md`.
 
 ## Frontend Target State
 
@@ -82,6 +91,15 @@ Severity is `P0` production/security/data-loss impact, `P1` core flow blocked, `
 - Goal, users, priority, in/out scope, assumptions, and dependencies are explicit.
 - Acceptance criteria are observable and include errors, empty states, permissions, and applicable non-functional requirements.
 - Required delivery scopes are set in task front matter; non-applicable scopes are `N/A`.
+- Task records `ui_spec` path or `N/A` with reason (UI phase required or skipped).
+
+### UI Design Gate
+
+- Applies when any required client target needs user-visible UI for this task.
+- Spec exists under `docs/ui/specs/` and follows the template structure (structure, states, acceptance).
+- Under `顺序完成` / `交付`, Spec may be auto-`Approved` with `approved_by: pipeline` unless the user required confirmation.
+- Spec does not invent backend contracts; unknowns are listed for Architect.
+- If UI is out of scope, record `ui_spec: N/A` and skip this gate.
 
 ### Architecture Gate
 
@@ -89,11 +107,13 @@ Severity is `P0` production/security/data-loss impact, `P1` core flow blocked, `
 - Ownership boundaries, error behavior, and external dependencies are resolved.
 - Required client targets have responsibility placement, dependency direction, and shared-versus-platform decisions documented at a level proportional to the change.
 - Breaking contract changes include a versioning and consumer migration decision.
+- When a UI Spec exists, API/error/empty states needed by the Spec are reflected or explicitly deferred with reason.
 
 ### Implementation Gate
 
 - Every required scope is `Done`; code, tests, documentation, and generated contracts agree.
 - Every client scope records its pre-coding architecture check; the implementation follows that decision or includes a completed Architect impact review for deviations.
+- Mini Program / Web UI work follows the Approved Spec (or design-system defaults when `ui_spec: N/A`).
 - Changed files and exact verification commands/results are recorded in the task.
 - Every required frontend target is `Done` with a matching history entry.
 - No required check is skipped without a blocker.

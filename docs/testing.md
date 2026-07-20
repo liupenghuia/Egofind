@@ -93,7 +93,22 @@ Validate:
 
 ## Automated Delivery Verification
 
-The Test Agent and Orchestrator use `ruby scripts/deliver.rb <task>` to run the repeatable local verification loop. The runner reads `required_scopes` and `frontend_targets`, runs the applicable module checks, starts local backend/Web services for health checks, and writes command output and service logs under `/tmp/ppfiles-learn-delivery/<task-id>/`.
+The Test Agent and Orchestrator use `ruby scripts/deliver.rb <task>` to run the repeatable local verification loop. The runner reads `required_scopes` and `frontend_targets`, runs the applicable module checks from `product.yaml`, starts local Nest API / admin-web services for health checks, and writes command output and service logs under `/tmp/agent-delivery/EGoFind/<task-id>/` (see `delivery.evidence_root`).
+
+Configured automated checks (when the corresponding scope/target is required):
+
+| Check id | What it runs |
+| --- | --- |
+| `workflow` | `ruby scripts/validate_workflow.rb` |
+| `backend-test` | `pnpm run test:unit` in `backend/` (nest build + geo unit) |
+| `backend-prisma` | `pnpm exec prisma validate` |
+| `backend-health` | `node dist/main.js` + `GET /health` (`EGOFIND_BOOT_WITHOUT_DB=1` so Nest can start without MySQL; body may be `db=down`) |
+| `admin-presence` | `ruby scripts/check_admin_web.rb admin-web` |
+| `admin-build` | `pnpm run build` in `admin-web/` |
+| `admin-health` | serve `admin-web/dist` + `GET /index.html` |
+| `miniprogram-presence` | `ruby scripts/check_mini_app.rb mini-app` |
+
+Human gates (not auto-passed): production deploy, WeChat DevTools / real device, full `pnpm smoke:api` with Docker infra.
 
 - A runner failure is a test failure with evidence, not an environment-independent assumption of failure or success.
 - When `DELIVERY_REPAIR_COMMAND` is configured, the runner may invoke the repair owner and repeat checks for a bounded number of rounds.

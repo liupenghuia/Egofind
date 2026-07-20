@@ -140,13 +140,17 @@ pnpm smoke:api
 - [x] 小程序 `chooseLocation` 选点 + 逆地理 adcode
 - [x] 腾讯逆地理 WebService（`/map/reverse-geocode`，无 Key mock）
 - [x] 发布接口服务端 enrichPlace 双保险
+- [x] 对齐 `product.yaml` delivery checks 到 monorepo（Nest / admin-web / mini-app）
 - [ ] 管理端嵌入腾讯地图 JS SDK
 - [ ] 发布频控、敏感词、对象存储证件图
-- [ ] 对齐 `product.yaml` delivery checks 到新栈
+- [ ] 小程序 `taro build` 工具链（当前 DevTools / 全量编译为人工门禁）
 
 ## 文档
 
 - `docs/product-design.md` — 产品设计与匹配算法
 - `docs/database.md` — 表结构
 - `docs/requirements.md` — 需求摘要
+- `docs/ui/` — UI Design System + 页面 Spec
+- `docs/delivery-pipeline.md` — **顺序完成** 自动链路：产品 → UI → 架构 → 开发 → 测试
+- `docs/roles/ui-design.md` / `docs/roles/orchestrator.md` — UI Design 与编排
 - `backend/README.md` / `mini-app/README.md` / `admin-web/README.md`
