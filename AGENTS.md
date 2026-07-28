@@ -88,6 +88,38 @@ When the user **explicitly** requests delivery:
 - Preserve runner reports under the product's `delivery.evidence_root`.
 - Never bypass production deployment approval, secret access, destructive changes, or unavailable platform-specific checks through the runner.
 
+## Fix-to-Green Contract
+
+**Goal:** after implementation (or when the user says `修到绿` / fix-to-green), keep repairing until local delivery checks are green — without waiting for the user to re-invoke between fix rounds.
+
+### When it applies
+
+1. Implementation work for a known task just finished, **or**
+2. User says `修到绿 <task>` / `fix-to-green <task>`, **or**
+3. Delivery / `顺序完成` reached the runner step.
+
+Code-first work without a task file: still re-run the **same local checks you used to verify** after each fix; prefer `deliver.rb` when a task exists.
+
+### Loop (session Agent is the repair owner)
+
+```text
+run: ruby scripts/deliver.rb <task>
+  → pass: stop; report commands/results (runner green ≠ task Done)
+  → fail:
+      ruby scripts/summarize_delivery_failure.rb <task>
+      read report + FAIL logs; minimal diff on owning scope only
+      re-run deliver
+  → repeat up to product.yaml delivery.max_rounds (default 3)
+```
+
+Rules:
+
+1. **Do not stop** after the first red solely to ask “should I fix?” — fix until green, max rounds, or a hard stop.
+2. **Minimal diff**; route by check id (backend / admin-web / mini-app / workflow). Do not “cleanup” unrelated modules.
+3. **Hard stop** (record evidence + unblock condition; do not invent pass): production, secrets, real user data, paid/irreversible ops, WeChat DevTools / real device, missing infra for human-gated smoke.
+4. **Bounded**: after `max_rounds` still red → stop with failure summary and next human action.
+5. Optional unattended hook `DELIVERY_REPAIR_COMMAND` remains a **follow-up**; do not require it for session Fix-to-Green.
+
 ## Commit Attribution
 
 When `quality.commit_coauthor` is true, AI commits must include:

@@ -153,3 +153,7 @@ commands:
   - UI设计
   - ui-design
   - 设计
+  fix_to_green:
+  - 修到绿
+  - fix-to-green
+  - fix_to_green

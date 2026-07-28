@@ -160,11 +160,23 @@ Severity is `P0` production/security/data-loss impact, `P1` core flow blocked, `
 1. Validate workflow metadata before feature checks.
 2. Read the task's required scopes and frontend targets.
 3. Run the applicable backend, Mini Program, Web, and service health checks.
-4. Store exact commands, outputs, and service logs under `/tmp/ppfiles-learn-delivery/<task-id>/`.
+4. Store exact commands, outputs, and service logs under the product's `delivery.evidence_root` (EGoFind: `/tmp/agent-delivery/EGoFind/<task-id>/`).
 5. Stop with failed evidence when no repair command is configured.
 6. When `DELIVERY_REPAIR_COMMAND` is configured, run the repair command with `DELIVERY_TASK`, `DELIVERY_ROUND`, and `DELIVERY_RUN_DIR`, then repeat checks.
 7. Stop after the configured maximum rounds; never report a passing task from an assumed or skipped check.
 
-Runner failure handling follows the issue state machine: Test Agent records an actionable failure under `issues/`, the owning role fixes it and marks it `Ready for Retest`, and Test Agent independently retests it. The runner may provide failure evidence and invoke the configured repair command, but it does not close issues or bypass task status gates.
+### Session Fix-to-Green (default repair owner)
+
+When an Agent finishes implementation or the user says `修到绿` / after the deliver step of `交付` / `顺序完成`:
+
+1. Run `ruby scripts/deliver.rb <task>`.
+2. On failure, run `ruby scripts/summarize_delivery_failure.rb <task>` (or pass `DELIVERY_RUN_DIR`).
+3. Apply a **minimal** fix on the suggested scope only; re-run deliver.
+4. Repeat up to `delivery.max_rounds` without asking the user to re-invoke between fix rounds.
+5. Hard-stop on human gates, missing platform access, secrets, production, or irreversible ops — never invent a pass.
+
+The session Agent is the **default** repair owner. `DELIVERY_REPAIR_COMMAND` remains an optional **unattended** follow-up for CI/headless loops; it is not required for Fix-to-Green in chat.
+
+Runner failure handling for formal delivery state still follows the issue state machine: Test Agent records an actionable failure under `issues/` when in delivery mode, the owning role fixes it and marks it `Ready for Retest`, and Test Agent independently retests it. The runner may provide failure evidence and invoke the configured repair command, but it does not close issues or bypass task status gates. Runner green ≠ task `Done`.
 
 The runner does not bypass human approval for production deployment, secrets, destructive changes, or real WeChat authorization. Platform-specific Mini Program checks remain explicit manual or DevTools gates.

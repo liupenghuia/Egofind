@@ -111,7 +111,8 @@ Configured automated checks (when the corresponding scope/target is required):
 Human gates (not auto-passed): production deploy, WeChat DevTools / real device, full `pnpm smoke:api` with Docker infra.
 
 - A runner failure is a test failure with evidence, not an environment-independent assumption of failure or success.
-- When `DELIVERY_REPAIR_COMMAND` is configured, the runner may invoke the repair owner and repeat checks for a bounded number of rounds.
+- **Session Fix-to-Green:** after implementation or on `修到绿`, the chat Agent runs `deliver.rb`, then `summarize_delivery_failure.rb`, repairs the owning scope, and re-runs up to `delivery.max_rounds` (see root `AGENTS.md`). This does not replace Test Agent acceptance.
+- When `DELIVERY_REPAIR_COMMAND` is configured, the runner may invoke an unattended repair owner and repeat checks for a bounded number of rounds (optional follow-up; not required for session Fix-to-Green).
 - When repair cannot run, the missing tool, credential, fixture, or platform environment is recorded as a blocker.
 - A passing runner does not close issues or replace independent Test Agent acceptance-criterion verification.
 - WeChat DevTools authorization, real Mini Program rendering, production deployment, and other explicitly manual gates remain separate evidence items.

@@ -29,7 +29,8 @@
 ④ Backend            ← scopes.backend
 ⑤ Mini-App / Web     ← frontend_targets（依赖 ② 的 Spec + ③ 的契约）
 ⑥ Test
-⑦ deliver.rb + 修复环（若交付模式）
+⑦ deliver.rb
+⑧ Fix-to-Green       ← 会话 Agent 默认修到绿（见根 AGENTS.md；≤ max_rounds）
 ```
 
 **依赖说明**
@@ -89,6 +90,13 @@
 - **读**：验收 + Spec UI 验收条 + 实现  
 - **写**：证据；失败则 issue  
 
+### ⑦⑧ deliver + Fix-to-Green
+
+- **跑**：`ruby scripts/deliver.rb <task>`  
+- **失败**：`ruby scripts/summarize_delivery_failure.rb <task>` → 按 scope 最小修复 → 再 deliver  
+- **界**：`delivery.max_rounds`；人闸/缺环境硬停；runner 绿 ≠ task Done  
+- **默认 repair 主体**：当前会话 Agent（不依赖 `DELIVERY_REPAIR_COMMAND`）  
+
 ---
 
 ## 5. Orchestrator 执行规则
@@ -97,7 +105,8 @@
 2. 每相位结束在 task handoff 记一行：`from → to`、产物路径、验证命令。  
 3. 相位失败：记 Blocked 或建 issue，**不要跳过失败相位假装完成**。  
 4. 不要求用户再说「启动 UI Agent」「启动架构」——除非 §3 规定暂停。  
-5. Code-first 且用户**未**说顺序完成/交付：禁止擅自跑完整流水线。  
+5. deliver 失败后按 Fix-to-Green 自动修，**不要**停下来等人说「再修一次」。  
+6. Code-first 且用户**未**说顺序完成/交付：禁止擅自跑完整流水线；但实现收尾仍应用同一 Fix-to-Green 环（有 task 时用 deliver）。  
 
 ---
 

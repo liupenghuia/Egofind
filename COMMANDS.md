@@ -171,6 +171,32 @@ ruby scripts/deliver.rb user-management
 
 The runner validates workflow metadata, executes required module checks, starts local backend/Web services for health checks, saves evidence, and can invoke a configured repair command before retesting. Configure `DELIVERY_REPAIR_COMMAND` or pass `--repair-command`; the default maximum is three rounds.
 
+**Session Fix-to-Green (default):** the chat Agent repairs from evidence without requiring `DELIVERY_REPAIR_COMMAND`. See root `AGENTS.md` → Fix-to-Green Contract. Unattended repair via env hook is an optional follow-up.
+
+### Fix-to-Green
+
+```text
+修到绿 user-management
+```
+
+English: `fix-to-green user-management`.
+
+Expands to (same session, no waiting for “fix again”):
+
+1. `ruby scripts/deliver.rb <task>`
+2. On failure: `ruby scripts/summarize_delivery_failure.rb <task>`
+3. Minimal code fix on suggested scopes only
+4. Re-run deliver until green, `delivery.max_rounds`, or a hard stop (human gate / missing env)
+5. Report rounds, commands, and final result — never invent a pass
+
+Also runs automatically after implementation when a task exists and after the deliver step of `顺序完成` / `交付`.
+
+```bash
+# Inspect latest failed run without repairing
+ruby scripts/summarize_delivery_failure.rb user-management
+# Or: DELIVERY_RUN_DIR=/tmp/agent-delivery/EGoFind/<id>/<run> ruby scripts/summarize_delivery_failure.rb
+```
+
 ## Next Work
 
 ```text
