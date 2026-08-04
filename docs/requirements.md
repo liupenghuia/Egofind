@@ -1,5 +1,8 @@
 # Requirements — egofind
 
+> **短真相源**（`truths.requirements`）。长设计见 [`product-design.md`](./product-design.md)；文档地图见 [`README.md`](./README.md)。  
+> Active slice 表示**当前产品焦点**；历史 task 详情在 `tasks/`。
+
 ## Product Goal
 
 同城/县域顺风车双向匹配平台：在同一县城/市区（adcode）内撮合「车找人」与「人找车」，乘客确认同行后方可获取授权电话；单小程序支持乘客/司机双模式切换。
@@ -24,11 +27,17 @@
 6. 举报、互评、订单生命周期
 7. 管理后台：用户/订单/审核/统计
 
-## Active product slice (2026-07-20)
+## Active product slice
 
-- **TASK-20260720-001**：乘客地图点司机标记 → 可读行程摘要 → 仅确认同行后可电话。  
-- UI Spec：`docs/ui/specs/map-driver-summary-confirm-call.md`（待用户确认）。  
-- 范围：仅小程序；管理端 N/A。
+- **切片收口（2026-07-30）**：体验 U0～U4 均 Done。续作见 [`NEXT.md`](./NEXT.md)。  
+- **TASK-20260730-005**（Done）：体验 U4 业务补全  
+- **TASK-20260730-004**（Done）：体验 U3 视觉精细化  
+- **TASK-20260730-003**（Done）：体验 U2  
+- **TASK-20260730-002**（Done）：体验 U1  
+- **TASK-20260730-001**（Done）：体验 U0  
+- 业务主路径与安全整改：见 `tasks/`  
+
+**注意：** 需 `prisma migrate deploy` 应用 `legal_and_report_audit` 与 `match_cancel_fields`。  
 
 ## Non-Goals
 

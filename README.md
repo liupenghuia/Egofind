@@ -10,9 +10,9 @@
 | `@egofind/mini-app` | `mini-app/` | Taro 4 · React · TS · Zustand · 地图 |
 | `@egofind/admin-web` | `admin-web/` | React 18 · Vite · Ant Design 5 · Axios |
 
-产品设计：`docs/product-design.md`  
-数据模型：`docs/database.md`
-
+**下次续作（U3/U4 暂停清单）：** [`docs/NEXT.md`](docs/NEXT.md)  
+**文档地图：** [`docs/README.md`](docs/README.md) · **Agent 入口：** [`CLAUDE.md`](CLAUDE.md)  
+产品短真相：`docs/requirements.md` · 长设计：`docs/product-design.md` · 数据：`docs/database.md`
 ```text
 小程序 / 管理后台  ──REST+JWT──►  NestJS  ──►  MySQL
                                    └──►  Redis / 微信 / 腾讯地图(可选)
@@ -147,10 +147,16 @@ pnpm smoke:api
 
 ## 文档
 
-- `docs/product-design.md` — 产品设计与匹配算法
-- `docs/database.md` — 表结构
-- `docs/requirements.md` — 需求摘要
-- `docs/ui/` — UI Design System + 页面 Spec
-- `docs/delivery-pipeline.md` — **顺序完成** 自动链路：产品 → UI → 架构 → 开发 → 测试
-- `docs/roles/ui-design.md` / `docs/roles/orchestrator.md` — UI Design 与编排
-- `backend/README.md` / `mini-app/README.md` / `admin-web/README.md`
+完整分类与「为何不合 / 短链说明」见 **[`docs/README.md`](docs/README.md)**。
+
+| 文档 | 用途 |
+| --- | --- |
+| `CLAUDE.md` | Agent 唯一总入口 |
+| `docs/requirements.md` | 产品短真相 + Active slice |
+| `docs/product-design.md` | 设计基线与匹配算法 |
+| `docs/domain-rules.md` | 反馈额度、adcode 等域规则 |
+| `docs/architecture.md` | 系统边界索引 |
+| `docs/openapi.yaml` / `database.md` | 契约与数据 |
+| `docs/ui/` | Design system + 按功能 Spec |
+| `docs/delivery-pipeline.md` | 顺序完成相位 |
+| `docs/delivery-workflow.md` | task/issue 状态机 |

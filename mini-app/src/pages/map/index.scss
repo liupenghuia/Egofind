@@ -1,0 +1,107 @@
+@use '../../styles/tokens.scss' as *;
+
+.map-page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: calc(120px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.map-header {
+  padding: $space-md;
+  background: $color-bg-card;
+}
+
+.map-header__title {
+  font-size: $font-lg;
+  font-weight: 600;
+  color: $color-text-primary;
+  display: block;
+}
+
+.map-header__region {
+  margin-top: $space-xs;
+  font-size: $font-sm;
+  color: $color-text-secondary;
+  display: block;
+}
+
+.map-header__adcode {
+  margin-top: 4px;
+  font-size: $font-xs;
+  color: $color-text-secondary;
+  opacity: 0.85;
+  display: block;
+}
+
+.map-header__status {
+  margin-top: $space-sm;
+  font-size: $font-sm;
+  color: $color-text-secondary;
+}
+
+.map-header__status--error {
+  color: $color-danger;
+}
+
+.map-header__restrict {
+  background: #fff2f0;
+  color: #a8071a;
+  padding: $space-sm;
+  margin-bottom: $space-sm;
+  border-radius: $radius-sm;
+  font-size: $font-sm;
+}
+
+.map-canvas {
+  width: 100%;
+  height: 65vh;
+}
+
+.trip-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background: $color-bg-card;
+  border-radius: $radius-lg $radius-lg 0 0;
+  box-shadow: $shadow-sheet;
+  padding: $space-lg $space-md calc(#{$space-lg} + env(safe-area-inset-bottom));
+}
+
+.trip-sheet__route {
+  font-size: $font-lg;
+  font-weight: 600;
+  color: $color-text-primary;
+  display: block;
+}
+
+.trip-sheet__meta {
+  margin-top: $space-sm;
+  font-size: $font-sm;
+  color: $color-text-secondary;
+  line-height: 1.5;
+}
+
+.trip-sheet__price {
+  margin-top: $space-xs;
+  font-size: $font-md;
+  color: $color-brand;
+}
+
+.trip-sheet__hint {
+  margin-top: $space-sm;
+  font-size: $font-sm;
+  color: $color-text-secondary;
+}
+
+.trip-sheet__actions {
+  margin-top: $space-md;
+  display: flex;
+  gap: $space-sm;
+}
+
+.trip-sheet__btn {
+  flex: 1;
+}

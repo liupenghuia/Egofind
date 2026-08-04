@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Button, Space, Table, message } from 'antd';
+import { Button, Space, Table, Tag, message } from 'antd';
 import { listVerifications, reviewVerification } from '../api/admin';
+import {
+  VERIFY_STATUS_ZH,
+  statusTagColor,
+  zhLabel,
+} from '../utils/labels';
 
 export default function Verifications() {
   const [rows, setRows] = useState<any[]>([]);
@@ -17,7 +22,15 @@ export default function Verifications() {
         { title: '用户', dataIndex: ['user', 'nickname'] },
         { title: '车牌', dataIndex: 'plateNo' },
         { title: '车型', dataIndex: 'carModel' },
-        { title: '状态', dataIndex: 'status' },
+        {
+          title: '状态',
+          dataIndex: 'status',
+          render: (s: string) => (
+            <Tag color={statusTagColor(s || 'PENDING')}>
+              {zhLabel(VERIFY_STATUS_ZH, s || 'PENDING')}
+            </Tag>
+          ),
+        },
         {
           title: '操作',
           render: (_, row) => (

@@ -2,7 +2,7 @@
 
 ## Load Before Work
 
-- Root `AGENTS.md`, `product.yaml`
+- Root `CLAUDE.md`（含原 AGENTS/COMMANDS）, `product.yaml`
 - **`docs/delivery-pipeline.md`** (phase order — primary)
 - `docs/delivery-workflow.md` (state machines, when user asked 交付)
 - Target task / user request
@@ -21,7 +21,7 @@
   4. Backend / Mini-App / Web per scopes  
   5. Test  
   6. `ruby scripts/deliver.rb <task>` when implementation exists and delivery mode is on  
-  7. **Fix-to-Green** (see root `AGENTS.md`): on runner failure, summarize → repair owning scope → re-run deliver, up to `delivery.max_rounds`, without waiting for the user to say “fix again”
+  7. **Fix-to-Green** (see root `CLAUDE.md`): on runner failure, summarize → repair owning scope → re-run deliver, up to `delivery.max_rounds`, without waiting for the user to say “fix again”
 
 - **Auto-start UI Design** after Product when miniprogram/web UI is in scope — do not wait for a separate `UI设计` command.
 - **Auto-start Architect** after UI Design (or after Product if UI skipped).

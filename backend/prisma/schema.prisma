@@ -71,6 +71,9 @@ model User {
   activeMode   ActiveMode  @default(PASSENGER) @map("active_mode")
   creditScore  Int         @default(100) @map("credit_score")
   status       Int         @default(1)
+  /// 用户协议接受时间（服务端记录）
+  legalAcceptedAt DateTime? @map("legal_accepted_at")
+  legalVersion    String?   @map("legal_version") @db.VarChar(32)
   roles        UserRole[]
   driverProfile DriverProfile?
   driverTrips  DriverTrip[]
@@ -241,6 +244,9 @@ model MatchOrder {
   status             MatchStatus         @default(CONFIRMED)
   confirmedAt        DateTime            @default(now()) @map("confirmed_at")
   completedAt        DateTime?           @map("completed_at")
+  cancelledAt        DateTime?           @map("cancelled_at")
+  cancelReason       String?             @map("cancel_reason") @db.VarChar(255)
+  cancelledBy        String?             @map("cancelled_by") @db.VarChar(64)
   driverTrip         DriverTrip          @relation(fields: [driverTripId], references: [id], onDelete: Cascade)
   passengerRequest   PassengerRequest    @relation(fields: [passengerRequestId], references: [id], onDelete: Cascade)
   driver             User                @relation("MatchDriver", fields: [driverId], references: [id], onDelete: Cascade)
@@ -288,12 +294,16 @@ model Report {
   detail       String?          @db.VarChar(1000)
   status       ReportStatus     @default(OPEN)
   adminNote    String?          @map("admin_note") @db.VarChar(1000)
+  resolvedBy   String?          @map("resolved_by") @db.VarChar(64)
+  resolvedAt   DateTime?        @map("resolved_at")
   reporter     User             @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
   targetUser   User?            @relation("ReportTarget", fields: [targetUserId], references: [id], onDelete: SetNull)
   createdAt    DateTime         @default(now()) @map("created_at")
   updatedAt    DateTime         @updatedAt @map("updated_at")
 
   @@index([status, createdAt])
+  @@index([reporterId, createdAt])
+  @@index([targetType, targetId, status])
   @@map("reports")
 }
 

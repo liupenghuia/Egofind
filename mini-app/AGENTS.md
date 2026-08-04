@@ -2,7 +2,7 @@
 
 ## Load Before Work
 
-- Read root `AGENTS.md`, `docs/client-architecture.md`, OpenAPI, task/issues.
+- Read root `CLAUDE.md` (唯一总入口；原 AGENTS/COMMANDS 已合并), `docs/client-architecture.md`, OpenAPI, task/issues.
 - Read **`docs/ui/design-system.md`** (tokens, dual mode, empty/error patterns).
 - If the task or user names a feature, check **`docs/ui/specs/`** for a matching Spec.
 - Complete `docs/code-quality-prerequisites.md` before coding.
@@ -19,7 +19,7 @@
 
 **Role split:** UI Design Agent owns Spec files under `docs/ui/`. This agent owns Taro implementation under `mini-app/`.
 
-See `docs/roles/ui-design.md` and `COMMANDS.md` (`UI设计` / `小程序`).
+See `docs/roles/ui-design.md` and root `CLAUDE.md` §7 (`UI设计` / `小程序`).
 
 ## Ownership
 

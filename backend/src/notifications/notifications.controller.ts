@@ -15,6 +15,18 @@ export class NotificationsController {
     return this.service.list(user.id);
   }
 
+  @Get('unread-count')
+  @ApiOperation({ summary: '未读数量' })
+  unreadCount(@CurrentUser() user: JwtPayloadUser) {
+    return this.service.unreadCount(user.id);
+  }
+
+  @Post('read-all')
+  @ApiOperation({ summary: '全部标为已读' })
+  readAll(@CurrentUser() user: JwtPayloadUser) {
+    return this.service.markAllRead(user.id);
+  }
+
   @Post(':id/read')
   @ApiOperation({ summary: '标记已读' })
   read(@CurrentUser() user: JwtPayloadUser, @Param('id') id: string) {

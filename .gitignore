@@ -33,6 +33,7 @@ Thumbs.db
 # Nest / Prisma
 backend/dist/
 backend/generated/
+backend/uploads/
 
 # Taro / mini-app
 mini-app/dist/

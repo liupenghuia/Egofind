@@ -6,6 +6,7 @@ import { sameRegion } from '../common/utils/geo';
 import { TencentMapService } from './tencent-map.service';
 import { ErrorCode } from '../common/constants/error-codes';
 import { TripFeedbacksService } from '../trip-feedbacks/trip-feedbacks.service';
+import { expireStalePosts } from '../common/utils/expire-stale';
 
 @Injectable()
 export class MapService {
@@ -37,6 +38,8 @@ export class MapService {
     if (params.mode === 'driver' && params.userId) {
       await this.tripFeedbacks.assertDriverNotRestricted(params.userId, 'search');
     }
+
+    await expireStalePosts(this.prisma);
 
     const now = new Date();
     const limit = 200;

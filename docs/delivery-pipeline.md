@@ -30,7 +30,7 @@
 ⑤ Mini-App / Web     ← frontend_targets（依赖 ② 的 Spec + ③ 的契约）
 ⑥ Test
 ⑦ deliver.rb
-⑧ Fix-to-Green       ← 会话 Agent 默认修到绿（见根 AGENTS.md；≤ max_rounds）
+⑧ Fix-to-Green       ← 会话 Agent 默认修到绿（见根 CLAUDE.md；≤ max_rounds）
 ```
 
 **依赖说明**

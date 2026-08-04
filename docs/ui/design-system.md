@@ -76,7 +76,17 @@
 
 页面左右默认 `space-lg`；卡片间距 `space-md`。
 
-### 2.4 触控与安全
+### 2.4 阴影（层级）
+
+| Token | 值 | 用途 |
+| --- | --- | --- |
+| `shadow-card` | `0 4px 16px rgba(0,0,0,0.04)` | 卡片、列表块 |
+| `shadow-sheet` | `0 -8px 32px rgba(0,0,0,0.08)` | 底部 Sheet |
+| `shadow-tab` | `0 -4px 16px rgba(0,0,0,0.04)` | 自定义 TabBar |
+
+地图车找人 / 人找车标记色见 §2.1 `color-map-*`。
+
+### 2.5 触控与安全
 
 - 可点区域最小约 **88rpx** 高（约 44pt）
 - 主按钮全宽或底部固定栏时，注意底部安全区（home indicator）

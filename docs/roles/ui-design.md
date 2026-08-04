@@ -2,7 +2,7 @@
 
 ## Load Before Work
 
-- Root `AGENTS.md`, `product.yaml`, `COMMANDS.md`
+- Root `CLAUDE.md`（含命令与产品准则）, `product.yaml`
 - Product behavior: `docs/requirements.md`, `docs/product-design.md` (principles)
 - Visual baseline: `docs/ui/design-system.md`
 - Active task (if any) and linked issues

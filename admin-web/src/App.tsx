@@ -7,6 +7,7 @@ import Orders from './pages/Orders';
 import Verifications from './pages/Verifications';
 import MapPreview from './pages/MapPreview';
 import Feedbacks from './pages/Feedbacks';
+import Reports from './pages/Reports';
 
 function Private({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('egofind_admin_token');
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="verifications" element={<Verifications />} />
           <Route path="map" element={<MapPreview />} />
           <Route path="feedbacks" element={<Feedbacks />} />
+          <Route path="reports" element={<Reports />} />
         </Route>
       </Routes>
     </BrowserRouter>

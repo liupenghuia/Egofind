@@ -1,6 +1,22 @@
 import { useEffect, useState } from 'react';
-import { Tabs, Table, Input, Space } from 'antd';
-import { listDriverTrips, listPassengerRequests, listMatches } from '../api/admin';
+import { Tabs, Table, Input, Space, Tag } from 'antd';
+import {
+  listDriverTrips,
+  listPassengerRequests,
+  listMatches,
+} from '../api/admin';
+import {
+  TRIP_STATUS_ZH,
+  VISIBILITY_ZH,
+  statusTagColor,
+  zhLabel,
+} from '../utils/labels';
+
+function StatusTag({ status }: { status?: string }) {
+  return (
+    <Tag color={statusTagColor(status)}>{zhLabel(TRIP_STATUS_ZH, status)}</Tag>
+  );
+}
 
 export default function Orders() {
   const [adcode, setAdcode] = useState('');
@@ -48,7 +64,11 @@ export default function Orders() {
                   { title: '到达', dataIndex: 'destName' },
                   { title: 'adcode', dataIndex: 'originAdcode' },
                   { title: '座位', dataIndex: 'seatsLeft' },
-                  { title: '状态', dataIndex: 'status' },
+                  {
+                    title: '状态',
+                    dataIndex: 'status',
+                    render: (s: string) => <StatusTag status={s} />,
+                  },
                 ]}
               />
             ),
@@ -63,8 +83,16 @@ export default function Orders() {
                 columns={[
                   { title: '出发', dataIndex: 'originName' },
                   { title: '到达', dataIndex: 'destName' },
-                  { title: '可见性', dataIndex: 'visibility' },
-                  { title: '状态', dataIndex: 'status' },
+                  {
+                    title: '可见性',
+                    dataIndex: 'visibility',
+                    render: (v: string) => zhLabel(VISIBILITY_ZH, v),
+                  },
+                  {
+                    title: '状态',
+                    dataIndex: 'status',
+                    render: (s: string) => <StatusTag status={s} />,
+                  },
                 ]}
               />
             ),
@@ -79,8 +107,17 @@ export default function Orders() {
                 columns={[
                   { title: 'ID', dataIndex: 'id', ellipsis: true },
                   { title: '座位', dataIndex: 'seats' },
-                  { title: '状态', dataIndex: 'status' },
-                  { title: '确认时间', dataIndex: 'confirmedAt' },
+                  {
+                    title: '状态',
+                    dataIndex: 'status',
+                    render: (s: string) => <StatusTag status={s} />,
+                  },
+                  {
+                    title: '确认时间',
+                    dataIndex: 'confirmedAt',
+                    render: (v: string) =>
+                      v ? new Date(v).toLocaleString() : '-',
+                  },
                 ]}
               />
             ),

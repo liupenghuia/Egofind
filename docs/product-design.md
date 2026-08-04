@@ -1,11 +1,11 @@
-# egofind 产品设计文档 + 数据模型（第1步）
+# egofind 产品设计文档 + 数据模型
 
-> **文档状态**：第1步交付物（设计基线）  
-> **产品名**：egofind（EGoFind / Yi Go Find）  
-> **定位**：同城/县域顺风车 **双向匹配** 平台  
-> **仓库约束**：不改动 monorepo 根结构（`backend` / `mini-app` / `admin-web`）  
-> **落盘约定**：用户回复「继续」后，将本文同步到 `docs/product-design.md` + 更新 `docs/database.md` / `docs/requirements.md`，并进入第2步后端修复与业务模块
-
+> **角色**：**长设计基线**（定位、原则、主流程、匹配算法、模型纲要）。  
+> **短真相 / 当前切片**：[`requirements.md`](./requirements.md) · **文档地图**：[`README.md`](./README.md)  
+> **域规则合集**：[`domain-rules.md`](./domain-rules.md)（额度、adcode）  
+> **实现表结构**：[`database.md`](./database.md) + `backend/prisma/schema.prisma`  
+> **产品名**：egofind（EGoFind / Yi Go Find）— 同城/县域顺风车 **双向匹配**  
+> **说明**：文内「第1步」等历史口吻可忽略；以当前代码与 requirements Active slice 为准。
 ---
 
 ## 1. 产品定位

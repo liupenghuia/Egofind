@@ -15,7 +15,8 @@
     "prisma:seed": "prisma db seed",
     "prisma:studio": "prisma studio",
     "check:geo": "node scripts/check-geo.mjs",
-    "test:unit": "pnpm run build && pnpm run check:geo",
+    "check:lifecycle": "node scripts/check-trip-lifecycle.mjs",
+    "test:unit": "pnpm run build && pnpm run check:geo && pnpm run check:lifecycle",
     "test": "pnpm run test:unit"
   },
   "prisma": {

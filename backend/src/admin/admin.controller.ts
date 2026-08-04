@@ -75,9 +75,28 @@ export class AdminController {
   }
 
   @Get('reports')
-  @ApiOperation({ summary: '举报列表' })
+  @ApiOperation({ summary: '举报列表（OPEN/REVIEWING）' })
   reportsList() {
     return this.reports.listOpen();
+  }
+
+  @Post('reports/:id/resolve')
+  @ApiOperation({ summary: '处理举报：处理中/关闭，可选禁用用户' })
+  resolveReport(
+    @CurrentUser() admin: JwtPayloadUser,
+    @Param('id') id: string,
+    @Body()
+    body: {
+      status: 'REVIEWING' | 'CLOSED';
+      adminNote?: string;
+      banTargetUser?: boolean;
+    },
+  ) {
+    return this.reports.resolve(admin.id, id, {
+      status: body.status || 'CLOSED',
+      adminNote: body.adminNote,
+      banTargetUser: !!body.banTargetUser,
+    });
   }
 
   @Get('orders/driver-trips')

@@ -6,6 +6,7 @@ import {
   DashboardOutlined,
   EnvironmentOutlined,
   LogoutOutlined,
+  AlertOutlined,
 } from '@ant-design/icons';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 
@@ -16,6 +17,7 @@ const items = [
   { key: '/users', icon: <UserOutlined />, label: <Link to="/users">用户管理</Link> },
   { key: '/orders', icon: <CarOutlined />, label: <Link to="/orders">订单管理</Link> },
   { key: '/verifications', icon: <AuditOutlined />, label: <Link to="/verifications">司机认证</Link> },
+  { key: '/reports', icon: <AlertOutlined />, label: <Link to="/reports">举报管理</Link> },
   { key: '/map', icon: <EnvironmentOutlined />, label: <Link to="/map">地图预览</Link> },
   { key: '/feedbacks', icon: <AuditOutlined />, label: <Link to="/feedbacks">无法同行反馈</Link> },
 ];

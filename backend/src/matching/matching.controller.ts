@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MatchingService } from './matching.service';
 import { ConfirmMatchDto } from './dto/confirm-match.dto';
+import { CancelMatchDto } from './dto/cancel-match.dto';
 import { CurrentUser, JwtPayloadUser } from '../common/decorators/current-user.decorator';
 
 @ApiTags('matching')
@@ -38,5 +39,15 @@ export class MatchingController {
   @ApiOperation({ summary: '完成同行单' })
   complete(@CurrentUser() user: JwtPayloadUser, @Param('id') id: string) {
     return this.service.complete(user.id, id);
+  }
+
+  @Post(':id/cancel')
+  @ApiOperation({ summary: '取消已确认同行（双方，单方生效）' })
+  cancel(
+    @CurrentUser() user: JwtPayloadUser,
+    @Param('id') id: string,
+    @Body() dto: CancelMatchDto,
+  ) {
+    return this.service.cancel(user.id, id, dto?.reason);
   }
 }

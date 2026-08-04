@@ -2,14 +2,34 @@ import { View, Text, Button } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import { useState } from 'react';
 import { useUserStore } from '../../stores/user';
-import { getDriverQuotaStatus, type DriverQuotaStatus } from '../../services/trips';
-import './index.scss';
+import {
+  getDriverQuotaStatus,
+  myMatches,
+  notificationsUnreadCount,
+  type DriverQuotaStatus,
+} from '../../services/trips';
+import { PageShell } from '../../components/PageShell';
+import { ModeSegment } from '../../components/ModeSegment';
+import { formatMatchStatus } from '../../utils/format';
+import { syncCustomTabBar } from '../../utils/tab-bar';
+
+type MatchBrief = {
+  id: string;
+  status: string;
+  driverTrip?: { originName?: string; destName?: string };
+  passengerRequest?: { originName?: string; destName?: string };
+};
 
 export default function Index() {
-  const { token, mode, setMode, user } = useUserStore();
-  const [driverStatus, setDriverStatus] = useState<DriverQuotaStatus | null>(null);
+  const { token, mode, user } = useUserStore();
+  const [driverStatus, setDriverStatus] = useState<DriverQuotaStatus | null>(
+    null,
+  );
+  const [unread, setUnread] = useState(0);
+  const [activeMatch, setActiveMatch] = useState<MatchBrief | null>(null);
 
   useDidShow(() => {
+    syncCustomTabBar('/pages/index/index');
     if (!token) {
       Taro.redirectTo({ url: '/pages/login/index' });
       return;
@@ -21,20 +41,20 @@ export default function Index() {
     } else {
       setDriverStatus(null);
     }
+    notificationsUnreadCount()
+      .then((r) => setUnread(r.count || 0))
+      .catch(() => setUnread(0));
+    myMatches()
+      .then((list) => {
+        const arr = (list || []) as MatchBrief[];
+        const hit =
+          arr.find((m) => m.status === 'CONFIRMED') ||
+          arr.find((m) => m.status === 'COMPLETED') ||
+          null;
+        setActiveMatch(hit);
+      })
+      .catch(() => setActiveMatch(null));
   });
-
-  const switchMode = () => {
-    const next = mode === 'passenger' ? 'driver' : 'passenger';
-    setMode(next);
-    Taro.showToast({ title: next === 'passenger' ? '乘客模式' : '司机模式', icon: 'none' });
-    if (next === 'driver') {
-      getDriverQuotaStatus()
-        .then(setDriverStatus)
-        .catch(() => setDriverStatus(null));
-    } else {
-      setDriverStatus(null);
-    }
-  };
 
   const goPublish = () => {
     if (mode === 'driver' && driverStatus?.restricted) {
@@ -53,70 +73,125 @@ export default function Index() {
     });
   };
 
+  const routeLabel = (m: MatchBrief) => {
+    const t = m.driverTrip;
+    if (t?.originName) return `${t.originName} → ${t.destName || '?'}`;
+    const p = m.passengerRequest;
+    if (p?.originName) return `${p.originName} → ${p.destName || '?'}`;
+    return '进行中的行程';
+  };
+
   return (
-    <View className="page">
+    <PageShell>
       {mode === 'driver' && driverStatus?.restricted && (
-        <View
-          style={{
-            background: '#fff2f0',
-            border: '1px solid #ffccc7',
-            color: '#a8071a',
-            padding: 16,
-            borderRadius: 8,
-            marginBottom: 16,
-            fontSize: 24,
-          }}
-        >
-          {driverStatus.message}
-        </View>
+        <View className="eg-banner-danger">{driverStatus.message}</View>
       )}
-      {mode === 'driver' && driverStatus && !driverStatus.restricted && (
-        <View
-          style={{
-            background: '#e6f4ff',
-            color: '#0958d9',
-            padding: 12,
-            borderRadius: 8,
-            marginBottom: 12,
-            fontSize: 24,
-          }}
-        >
-          本月司机原因反馈 {driverStatus.driverReasonCount}/{driverStatus.limit}，剩余{' '}
-          {driverStatus.remaining} 次
+      {mode === 'driver' && driverStatus && !driverStatus?.restricted && (
+        <View className="eg-banner-info">
+          本月司机原因反馈 {driverStatus.driverReasonCount}/
+          {driverStatus.limit}，剩余 {driverStatus.remaining} 次
         </View>
       )}
 
-      <View className="hero">
-        <Text className="title">egofind 顺风车</Text>
-        <Text className="sub">你好，{user?.nickname || '微信用户'}</Text>
-        <View className="mode-bar">
-          <Text>当前：{mode === 'passenger' ? '乘客模式' : '司机模式'}</Text>
-          <Button size="mini" type="primary" onClick={switchMode}>
-            切换模式
+      <View
+        className={
+          mode === 'driver' ? 'eg-hero eg-hero--driver' : 'eg-hero eg-hero--passenger'
+        }
+      >
+        <Text className="eg-hero__title">找同行</Text>
+        <Text className="eg-hero__sub">
+          你好，{user?.nickname || '微信用户'}
+        </Text>
+      </View>
+
+      <ModeSegment
+        onChange={(next) => {
+          syncCustomTabBar('/pages/index/index');
+          if (next === 'driver') {
+            getDriverQuotaStatus()
+              .then(setDriverStatus)
+              .catch(() => setDriverStatus(null));
+          } else {
+            setDriverStatus(null);
+          }
+        }}
+      />
+
+      {activeMatch ? (
+        <View className="eg-card">
+          <View className="eg-section-title">进行中</View>
+          <Text style={{ fontWeight: 600 }}>{routeLabel(activeMatch)}</Text>
+          <View className="eg-muted" style={{ marginTop: 8 }}>
+            状态 {formatMatchStatus(activeMatch.status)}
+          </View>
+          <Button
+            className="eg-btn-primary"
+            style={{ marginTop: 16 }}
+            onClick={() => Taro.switchTab({ url: '/pages/list/index' })}
+          >
+            查看行程
           </Button>
         </View>
+      ) : (
+        <View className="eg-card">
+          <View className="eg-section-title">开始找同行</View>
+          <View className="eg-muted">
+            {mode === 'passenger'
+              ? '发布人找车，或去附近看看有没有顺路的车'
+              : '发布车找人，让乘客发现你的空座'}
+          </View>
+          <Button
+            className="eg-btn-primary"
+            style={{ marginTop: 16 }}
+            onClick={goPublish}
+          >
+            {mode === 'driver' ? '发布车找人' : '发布人找车'}
+          </Button>
+          <Button
+            className="eg-btn-secondary"
+            style={{ marginTop: 12 }}
+            onClick={() => Taro.switchTab({ url: '/pages/map/index' })}
+          >
+            去地图发现
+          </Button>
+        </View>
+      )}
+
+      <View className="eg-entry-row">
+        <View
+          className="eg-entry"
+          onClick={() =>
+            Taro.navigateTo({ url: '/pages/match-candidates/index' })
+          }
+        >
+          <Text className="eg-entry__title">为你推荐</Text>
+          <Text className="eg-entry__desc">按匹配度排序</Text>
+        </View>
+        <View
+          className="eg-entry"
+          onClick={() =>
+            Taro.navigateTo({ url: '/pages/notifications/index' })
+          }
+        >
+          <Text className="eg-entry__title">
+            {unread > 0 ? `消息 ${unread}` : '消息'}
+          </Text>
+          <Text className="eg-entry__desc">通知与提醒</Text>
+        </View>
       </View>
 
-      <View className="grid">
-        <Button className="card" onClick={goPublish}>
-          {mode === 'driver' ? '发布车找人' : '发布人找车'}
-        </Button>
-        <Button className="card" onClick={() => Taro.navigateTo({ url: '/pages/map/index' })}>
-          地图发现
-        </Button>
-        <Button className="card" onClick={() => Taro.navigateTo({ url: '/pages/list/index' })}>
-          我的行程
-        </Button>
-        <Button className="card" onClick={() => Taro.navigateTo({ url: '/pages/mine/index' })}>
-          我的
-        </Button>
-      </View>
-
-      <View className="tips">
-        <Text>· 实时查看司机行程余座；满员可「无法同行」反馈</Text>
-        <Text>· 反馈分：司机原因 / 个人原因；仅司机原因计月额度</Text>
-        <Text>· 司机原因满 10 次：当月不能发车、不能查乘客，下月 1 日恢复</Text>
-      </View>
-    </View>
+      {mode === 'driver' && (
+        <View
+          className="eg-entry"
+          style={{ marginBottom: 24 }}
+          onClick={() =>
+            Taro.navigateTo({ url: '/pages/driver-verify/index' })
+          }
+        >
+          <Text className="eg-entry__title">司机认证</Text>
+          <Text className="eg-entry__desc">通过后才可发布车找人</Text>
+        </View>
+      )}
+    </PageShell>
   );
 }

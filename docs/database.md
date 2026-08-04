@@ -1,5 +1,7 @@
 # Database — egofind
 
+> 权威结构：`backend/prisma/schema.prisma`。文档地图：[`README.md`](./README.md)。
+
 ORM: Prisma · DB: MySQL 8  
 设计细节见 [product-design.md](./product-design.md) §5。
 

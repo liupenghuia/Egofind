@@ -9,6 +9,7 @@ import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
 import { RoleCode } from '../common/constants/roles';
 import { ErrorCode } from '../common/constants/error-codes';
+import { CURRENT_LEGAL_VERSION } from '../common/constants/legal';
 import { AdminLoginDto } from './dto/admin-login.dto';
 import { WechatLoginDto } from './dto/wechat-login.dto';
 import { WechatService } from './wechat.service';
@@ -22,6 +23,9 @@ type AuthUserView = {
   phoneMask: string | null;
   roles: string[];
   permissions: string[];
+  legalAcceptedAt: string | null;
+  legalVersion: string | null;
+  legalCurrentVersion: string;
 };
 
 @Injectable()
@@ -162,6 +166,11 @@ export class AuthService {
       phoneMask: user.phoneMask,
       roles,
       permissions,
+      legalAcceptedAt: user.legalAcceptedAt
+        ? user.legalAcceptedAt.toISOString()
+        : null,
+      legalVersion: user.legalVersion,
+      legalCurrentVersion: CURRENT_LEGAL_VERSION,
     };
   }
 }

@@ -2,7 +2,7 @@
 
 ## Load Before Work
 
-- Read root `AGENTS.md`, `docs/openapi.yaml`, `docs/database.md`, task/issues.
+- Read root `CLAUDE.md` (唯一总入口；原 AGENTS/COMMANDS 已合并), `docs/openapi.yaml`, `docs/database.md`, task/issues.
 - Complete `docs/code-quality-prerequisites.md` before coding.
 
 ## Ownership

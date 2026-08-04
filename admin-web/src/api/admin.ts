@@ -24,3 +24,15 @@ export const mapPreview = (adcode?: string) =>
 
 export const setUserStatus = (id: string, status: number) =>
   request.patch(`/admin/users/${id}/status`, { status }).then((r) => r.data);
+
+export const listReports = () =>
+  request.get('/admin/reports').then((r) => r.data);
+
+export const resolveReport = (
+  id: string,
+  data: {
+    status: 'REVIEWING' | 'CLOSED';
+    adminNote?: string;
+    banTargetUser?: boolean;
+  },
+) => request.post(`/admin/reports/${id}/resolve`, data).then((r) => r.data);

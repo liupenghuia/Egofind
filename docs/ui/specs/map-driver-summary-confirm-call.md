@@ -1,7 +1,7 @@
 ---
 id: UI-20260720-001
 title: 地图点司机标记—行程摘要与确认后电话
-status: Ready for Review
+status: Approved
 target: miniprogram
 related_task: TASK-20260720-001
 related_pages:
@@ -9,8 +9,8 @@ related_pages:
   - mini-app/src/pages/detail/index.tsx
 mode_scope: both
 created: 2026-07-20
-updated: 2026-07-20
-approved_by: null
+updated: 2026-07-28
+approved_by: user
 ---
 
 # UI Spec — 地图点司机标记—行程摘要与确认后电话
@@ -169,21 +169,21 @@ approved_by: null
 
 ## 9. UI 验收（可观察）
 
-- [ ] 乘客点司机标记：出现底栏摘要，含路线、时间、余座（有价含价格），**不是**以 adcode 为主文案。
-- [ ] 摘要可进入详情；详情未确认前**看不到可用「联系司机」**。
-- [ ] 确认成功后出现「联系司机」，点击走取号流程（失败有 Toast）。
-- [ ] 满员/未发人找车有明确说明，确认按钮不可乱成功。
-- [ ] 司机模式点标记无任何拨号入口。
+- [x] 乘客点司机标记：出现底栏摘要，含路线、时间、余座（有价含价格），**不是**以 adcode 为主文案。（代码审查 2026-07-28）
+- [x] 摘要可进入详情；详情未确认前**看不到可用「联系司机」**。
+- [x] 确认成功后出现「联系司机」，点击走取号流程（失败有 Toast）。真机拨号为人闸。
+- [x] 满员/未发人找车有明确说明，确认按钮不可乱成功。
+- [x] 司机模式点标记无任何拨号入口。
 
-## 10. 开放问题（供 Architect / 实现）
+## 10. 架构决议（2026-07-28 用户确认 UI 后）
 
-1. markers 已有 `title/seats/departStart/priceCents` — 摘要是否足够，还是详情必须再拉全量？
-2. 确认后 `matchOrderId` 仅存本地 state 会丢：是否应用 `GET /matching/mine` 回读？
-3. 区县展示：定位已有 district 名时，顶栏是否隐藏原始 adcode（产品倾向：友好名主、adcode 次要）。
+1. **摘要数据：** markers 的 `title/seats/departStart/priceCents` 足够底栏；详情仍 `GET /driver-trips/:id` 全量。
+2. **match 回读：** 详情加载时用 `GET /matching/mine` 匹配当前 `driverTripId` 且状态 `CONFIRMED|COMPLETED` 的订单，恢复「联系司机」。
+3. **区县顶栏：** 友好名（district/city）为主，adcode 次要小字。
+4. **后端：** 本切片无需改 API/库表；电话鉴权保持服务端强制。
 
 ## 11. 交接
 
-- **实现 owner：** Mini-App（架构通过后）；Backend 仅当回读/字段不足时。
+- **实现 owner：** Mini-App；Backend N/A（本切片）。
 - **Spec 路径：** `docs/ui/specs/map-driver-summary-confirm-call.md`
-- **当前状态：** `Ready for Review` — **请用户确认本 Spec** 后再跑 Architect → 开发。
-- **确认后下一步：** 用户回复「确认 UI」或列出修改点 → Orchestrator 继续架构与实现。
+- **当前状态：** `Approved`（`approved_by: user`，2026-07-28）。

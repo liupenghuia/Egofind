@@ -7,6 +7,7 @@ import {
 import { ActiveMode, MatchStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ErrorCode } from '../common/constants/error-codes';
+import { CURRENT_LEGAL_VERSION } from '../common/constants/legal';
 import { decryptPhone, encryptPhone, maskPhone } from '../common/utils/phone-crypto';
 import { decryptWechatData } from '../common/utils/wechat-crypto';
 import { WechatService } from '../auth/wechat.service';
@@ -17,6 +18,56 @@ export class UsersService {
     private readonly prisma: PrismaService,
     private readonly wechat: WechatService,
   ) {}
+
+  /** Require accepted legal for high-stakes writes (publish / confirm). */
+  async assertLegalAccepted(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { legalAcceptedAt: true, legalVersion: true },
+    });
+    if (!user?.legalAcceptedAt || user.legalVersion !== CURRENT_LEGAL_VERSION) {
+      throw new ForbiddenException({
+        code: ErrorCode.FORBIDDEN,
+        message: '请先阅读并同意最新用户协议与平台说明',
+      });
+    }
+  }
+
+  /** Require bound phone for publish / confirm (U4). */
+  async assertPhoneBound(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { phoneEnc: true, phoneMask: true },
+    });
+    if (!user?.phoneEnc) {
+      throw new ForbiddenException({
+        code: ErrorCode.PHONE_REQUIRED,
+        message: '请先绑定手机号后再操作',
+      });
+    }
+  }
+
+  async acceptLegal(userId: string, version?: string) {
+    const v = (version || CURRENT_LEGAL_VERSION).trim();
+    if (v !== CURRENT_LEGAL_VERSION) {
+      throw new BadRequestException({
+        code: ErrorCode.BAD_REQUEST,
+        message: `协议版本无效，当前版本为 ${CURRENT_LEGAL_VERSION}`,
+      });
+    }
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        legalAcceptedAt: new Date(),
+        legalVersion: CURRENT_LEGAL_VERSION,
+      },
+      select: {
+        id: true,
+        legalAcceptedAt: true,
+        legalVersion: true,
+      },
+    });
+  }
 
   async listUsers(page = 1, pageSize = 20) {
     const take = Math.min(Math.max(pageSize, 1), 100);

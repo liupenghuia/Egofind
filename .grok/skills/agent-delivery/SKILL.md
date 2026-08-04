@@ -13,7 +13,7 @@ description: Multi-agent closed-loop delivery using agent-delivery-kit (code-fir
 
 ## Instructions
 
-1. Load root `AGENTS.md` and `product.yaml`.
+1. Load root `CLAUDE.md` (merged AGENTS + COMMANDS + PM rules) and `product.yaml`.
 2. **If `顺序完成` or `交付`:** follow **`docs/delivery-pipeline.md`** and **`docs/roles/orchestrator.md`** — auto-chain phases in one session:
    1. Product (requirements, task, scopes, `ui_spec` path or N/A)
    2. UI Design when miniprogram/web UI is needed — Spec under `docs/ui/specs/`, default `Approved` (`approved_by: pipeline`) unless user said `UI 需我确认` or `跳过 UI 设计`
@@ -45,4 +45,4 @@ ruby scripts/deliver.rb <task>
 - Runner green ≠ task `Done`; Test still owns acceptance in delivery mode.
 - Unattended `DELIVERY_REPAIR_COMMAND` is a documented follow-up, not required for this loop.
 
-See `COMMANDS.md` and `docs/product-request-template.md`.
+See root `CLAUDE.md` §7 and `docs/product-request-template.md`.

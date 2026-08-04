@@ -60,6 +60,15 @@ export class UsersController {
     return this.usersService.setMode(user.id, dto.mode);
   }
 
+  @Post('me/legal-accept')
+  @ApiOperation({ summary: '接受当前版本用户协议/平台说明' })
+  acceptLegal(
+    @CurrentUser() user: JwtPayloadUser,
+    @Body() body: { version?: string },
+  ) {
+    return this.usersService.acceptLegal(user.id, body?.version);
+  }
+
   @Post('phone/bind')
   @ApiOperation({ summary: '绑定手机号（微信授权 / mock）' })
   bindPhone(@CurrentUser() user: JwtPayloadUser, @Body() dto: BindPhoneDto) {

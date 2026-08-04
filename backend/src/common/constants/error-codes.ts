@@ -8,6 +8,8 @@ export const ErrorCode = {
   DRIVER_RESTRICTED_PUBLISH: 40310,
   /** 本月司机原因反馈已满，禁止查找乘客 */
   DRIVER_RESTRICTED_SEARCH: 40311,
+  /** 需先绑定手机号 */
+  PHONE_REQUIRED: 40320,
   NOT_FOUND: 40400,
   CONFLICT: 40900,
   /** 已对该行程提交过无法同行反馈 */

@@ -1,0 +1,36 @@
+@use '../styles/tokens.scss' as *;
+
+.tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100px;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: $color-bg-card;
+  border-top: 1px solid $color-border;
+  display: flex;
+  z-index: 999;
+  box-shadow: $shadow-tab;
+}
+
+.tab-bar__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 88px;
+}
+
+.tab-bar__text {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.tab-bar__dot {
+  width: 32px;
+  height: 4px;
+  border-radius: 4px;
+  margin-top: 8px;
+}

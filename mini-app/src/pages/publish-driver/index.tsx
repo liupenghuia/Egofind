@@ -1,30 +1,41 @@
-import { View, Input, Button, Textarea, Text } from '@tarojs/components';
+import { View, Input, Button, Textarea, Text, Picker } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import { useState } from 'react';
-import { createDriverTrip, getDriverQuotaStatus } from '../../services/trips';
+import {
+  createDriverTrip,
+  getDriverQuotaStatus,
+  getDriverVerifyStatus,
+} from '../../services/trips';
 import { choosePlace, type Place } from '../../utils/location';
-
-const DEMO_ORIGIN: Place = {
-  name: '深泽县客运站（点此可重选）',
-  lat: 38.184,
-  lng: 115.201,
-  adcode: '130128',
-};
-const DEMO_DEST: Place = {
-  name: '深泽县政府（点此可重选）',
-  lat: 38.1845,
-  lng: 115.21,
-  adcode: '130128',
-};
+import { PageShell } from '../../components/PageShell';
+import {
+  combineLocalIso,
+  defaultTimeWindow,
+  formatLocalLabel,
+} from '../../utils/datetime';
+import { handleActionError } from '../../utils/legal-guard';
+import {
+  ensurePhoneBound,
+  handlePhoneRequiredError,
+} from '../../utils/phone-guard';
 
 export default function PublishDriver() {
-  const [origin, setOrigin] = useState<Place>(DEMO_ORIGIN);
-  const [dest, setDest] = useState<Place>(DEMO_DEST);
+  const tw = defaultTimeWindow();
+  const [origin, setOrigin] = useState<Place | null>(null);
+  const [dest, setDest] = useState<Place | null>(null);
   const [seats, setSeats] = useState('3');
   const [price, setPrice] = useState('15');
   const [remark, setRemark] = useState('');
-  const [plateNo, setPlateNo] = useState('冀A·DEMO');
+  const [plateNo, setPlateNo] = useState('');
+  const [carModel, setCarModel] = useState('轿车');
+  const [carColor, setCarColor] = useState('白');
+  const [startDate, setStartDate] = useState(tw.startDate);
+  const [startTime, setStartTime] = useState(tw.startTime);
+  const [endDate, setEndDate] = useState(tw.endDate);
+  const [endTime, setEndTime] = useState(tw.endTime);
   const [restrictedMsg, setRestrictedMsg] = useState<string | null>(null);
+  const [needVerify, setNeedVerify] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useDidShow(() => {
     getDriverQuotaStatus()
@@ -33,81 +44,251 @@ export default function PublishDriver() {
         else setRestrictedMsg(null);
       })
       .catch(() => undefined);
+    getDriverVerifyStatus()
+      .then((st) => {
+        setNeedVerify(!st.canPublish);
+        if (st.profile?.plateNo) setPlateNo(st.profile.plateNo);
+        if (st.profile?.carModel) setCarModel(st.profile.carModel || '轿车');
+        if (st.profile?.carColor) setCarColor(st.profile.carColor || '白');
+      })
+      .catch(() => setNeedVerify(true));
   });
+
+  const promptVerify = () => {
+    Taro.showModal({
+      title: '请先完成司机认证',
+      content: '通过认证后才可发布车找人',
+      confirmText: '去认证',
+      success: (res) => {
+        if (res.confirm) {
+          Taro.navigateTo({ url: '/pages/driver-verify/index' });
+        }
+      },
+    });
+  };
 
   const submit = async () => {
     if (restrictedMsg) {
       Taro.showModal({ title: '无法发布', content: restrictedMsg, showCancel: false });
       return;
     }
-    const start = new Date();
-    start.setHours(start.getHours() + 1);
-    const end = new Date(start.getTime() + 60 * 60 * 1000);
-    await createDriverTrip({
-      origin,
-      dest,
-      departStart: start.toISOString(),
-      departEnd: end.toISOString(),
-      seatsTotal: Number(seats) || 1,
-      priceCents: Math.round(Number(price || 0) * 100),
-      remark,
-      vehicleSnap: { plateNo, carModel: '轿车', carColor: '白' },
-    });
-    Taro.showToast({ title: '已发布' });
-    setTimeout(() => Taro.navigateBack(), 500);
+    if (needVerify) {
+      promptVerify();
+      return;
+    }
+    if (!(await ensurePhoneBound('发布车找人前请绑定手机号。'))) {
+      return;
+    }
+    if (!origin || !dest) {
+      Taro.showToast({ title: '请选择出发地与目的地', icon: 'none' });
+      return;
+    }
+    const seatsN = Number(seats);
+    if (!seatsN || seatsN < 1) {
+      Taro.showToast({ title: '请填写有效余座', icon: 'none' });
+      return;
+    }
+    const start = combineLocalIso(startDate, startTime);
+    const end = combineLocalIso(endDate, endTime);
+    if (!(start < end)) {
+      Taro.showToast({ title: '结束时间须晚于出发', icon: 'none' });
+      return;
+    }
+    if (start.getTime() < Date.now() - 60 * 1000) {
+      Taro.showToast({ title: '出发时间不能早于现在', icon: 'none' });
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await createDriverTrip({
+        origin,
+        dest,
+        departStart: start.toISOString(),
+        departEnd: end.toISOString(),
+        seatsTotal: seatsN,
+        priceCents: Math.round(Number(price || 0) * 100),
+        remark,
+        vehicleSnap: { plateNo: plateNo || undefined, carModel, carColor },
+      });
+      Taro.showToast({ title: '已发布' });
+      setTimeout(() => Taro.navigateBack(), 500);
+    } catch (e) {
+      if (await handlePhoneRequiredError(e)) {
+        return;
+      }
+      const accepted = await handleActionError(e);
+      if (accepted) {
+        // retry once after legal accept
+        try {
+          await createDriverTrip({
+            origin,
+            dest,
+            departStart: start.toISOString(),
+            departEnd: end.toISOString(),
+            seatsTotal: seatsN,
+            priceCents: Math.round(Number(price || 0) * 100),
+            remark,
+            vehicleSnap: { plateNo: plateNo || undefined, carModel, carColor },
+          });
+          Taro.showToast({ title: '已发布' });
+          setTimeout(() => Taro.navigateBack(), 500);
+        } catch {
+          /* toast */
+        }
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <View style={{ padding: 24 }}>
-      {restrictedMsg && (
-        <View style={{ background: '#fff2f0', color: '#a8071a', padding: 12, marginBottom: 16 }}>
-          {restrictedMsg}
+    <PageShell>
+      {needVerify && (
+        <View className="eg-banner-warn">
+          尚未通过司机认证，无法发布。
+          <Button
+            className="eg-btn-primary"
+            style={{ marginLeft: 8, display: 'inline-block', width: 'auto', padding: '0 24px', minHeight: 64, lineHeight: '64px' }}
+            onClick={promptVerify}
+          >
+            去认证
+          </Button>
         </View>
       )}
-      <Text style={{ fontWeight: 600 }}>出发地</Text>
-      <Button
-        size="mini"
-        onClick={async () => {
-          try {
-            setOrigin(await choosePlace('出发地'));
-          } catch {
-            /* cancelled */
-          }
-        }}
-      >
-        {origin.name}
-      </Button>
-      <Text style={{ fontWeight: 600, marginTop: 16, display: 'block' }}>目的地</Text>
-      <Button
-        size="mini"
-        onClick={async () => {
-          try {
-            setDest(await choosePlace('目的地'));
-          } catch {
-            /* cancelled */
-          }
-        }}
-      >
-        {dest.name}
-      </Button>
-      <View style={{ marginTop: 16, fontSize: 24, color: '#888' }}>
-        出发 adcode: {origin.adcode}
-        {origin.source ? ` (${origin.source})` : ''} · 到达: {dest.adcode}
+      {restrictedMsg && (
+        <View className="eg-banner-danger">{restrictedMsg}</View>
+      )}
+
+      <View className="eg-card">
+        <View className="eg-section-title">路线</View>
+        <Button
+          className="eg-btn-secondary"
+          onClick={async () => {
+            try {
+              setOrigin(await choosePlace('出发地'));
+            } catch {
+              /* */
+            }
+          }}
+        >
+          {origin ? origin.name : '选择出发地'}
+        </Button>
+        <Button
+          className="eg-btn-secondary"
+          style={{ marginTop: 12 }}
+          onClick={async () => {
+            try {
+              setDest(await choosePlace('目的地'));
+            } catch {
+              /* */
+            }
+          }}
+        >
+          {dest ? dest.name : '选择目的地'}
+        </Button>
+        {(origin?.adcode || dest?.adcode) && (
+          <View className="eg-muted" style={{ marginTop: 12 }}>
+            区县 {origin?.adcode || '-'} → {dest?.adcode || '-'}
+          </View>
+        )}
       </View>
-      <View style={{ fontSize: 22, color: '#aaa' }}>
-        选点后走服务端腾讯逆地理；无 Key 时为 mock 区县
+
+      <View className="eg-card">
+        <View className="eg-section-title">出发时间窗</View>
+        <View className="eg-muted">最早出发</View>
+        <View style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+          <Picker
+            mode="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.detail.value)}
+          >
+            <View className="eg-btn-secondary" style={{ flex: 1, textAlign: 'center' }}>
+              {startDate}
+            </View>
+          </Picker>
+          <Picker
+            mode="time"
+            value={startTime}
+            onChange={(e) => setStartTime(e.detail.value)}
+          >
+            <View className="eg-btn-secondary" style={{ flex: 1, textAlign: 'center' }}>
+              {startTime}
+            </View>
+          </Picker>
+        </View>
+        <View className="eg-muted" style={{ marginTop: 16 }}>
+          最晚出发
+        </View>
+        <View style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+          <Picker mode="date" value={endDate} onChange={(e) => setEndDate(e.detail.value)}>
+            <View className="eg-btn-secondary" style={{ flex: 1, textAlign: 'center' }}>
+              {endDate}
+            </View>
+          </Picker>
+          <Picker mode="time" value={endTime} onChange={(e) => setEndTime(e.detail.value)}>
+            <View className="eg-btn-secondary" style={{ flex: 1, textAlign: 'center' }}>
+              {endTime}
+            </View>
+          </Picker>
+        </View>
+        <View className="eg-muted" style={{ marginTop: 12 }}>
+          {formatLocalLabel(startDate, startTime)} ~ {formatLocalLabel(endDate, endTime)}
+        </View>
       </View>
-      <View style={{ marginTop: 16 }}>余座</View>
-      <Input value={seats} onInput={(e) => setSeats(e.detail.value)} type="number" />
-      <View style={{ marginTop: 16 }}>分摊价（元）</View>
-      <Input value={price} onInput={(e) => setPrice(e.detail.value)} type="digit" />
-      <View style={{ marginTop: 16 }}>车牌</View>
-      <Input value={plateNo} onInput={(e) => setPlateNo(e.detail.value)} />
-      <View style={{ marginTop: 16 }}>备注</View>
-      <Textarea value={remark} onInput={(e) => setRemark(e.detail.value)} />
-      <Button type="primary" style={{ marginTop: 24 }} onClick={submit}>
+
+      <View className="eg-card">
+        <View className="eg-section-title">座位与分摊</View>
+        <View className="eg-muted">余座</View>
+        <Input
+          value={seats}
+          type="number"
+          onInput={(e) => setSeats(e.detail.value)}
+          style={{ background: '#f5f6f8', padding: 12, borderRadius: 8, marginTop: 8 }}
+        />
+        <View className="eg-muted" style={{ marginTop: 16 }}>
+          分摊价（元/人，可选）
+        </View>
+        <Input
+          value={price}
+          type="digit"
+          onInput={(e) => setPrice(e.detail.value)}
+          style={{ background: '#f5f6f8', padding: 12, borderRadius: 8, marginTop: 8 }}
+        />
+        <View className="eg-muted" style={{ marginTop: 16 }}>
+          车牌（认证资料优先）
+        </View>
+        <Input
+          value={plateNo}
+          onInput={(e) => setPlateNo(e.detail.value)}
+          placeholder="如 冀A12345"
+          style={{ background: '#f5f6f8', padding: 12, borderRadius: 8, marginTop: 8 }}
+        />
+        <View className="eg-muted" style={{ marginTop: 16 }}>
+          备注
+        </View>
+        <Textarea
+          value={remark}
+          onInput={(e) => setRemark(e.detail.value)}
+          style={{
+            background: '#f5f6f8',
+            padding: 12,
+            borderRadius: 8,
+            marginTop: 8,
+            width: '100%',
+            minHeight: 100,
+            boxSizing: 'border-box',
+          }}
+        />
+      </View>
+
+      <Button
+        className="eg-btn-primary"
+        loading={submitting}
+        disabled={submitting || needVerify}
+        onClick={submit}
+      >
         发布车找人
       </Button>
-    </View>
+    </PageShell>
   );
 }
