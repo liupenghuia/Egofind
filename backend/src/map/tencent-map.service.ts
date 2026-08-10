@@ -15,6 +15,13 @@ export type ReverseGeocodeResult = {
   recommend?: string;
   /** 数据来源：tencent | mock | fallback */
   source: 'tencent' | 'mock' | 'fallback';
+  /**
+   * 是否可用于匹配/发单区县过滤。
+   * tencent 恒为 true；mock 仅当 ALLOW_MOCK_GEO 允许；fallback 恒 false。
+   */
+  matchReady: boolean;
+  /** 不可用于匹配时的说明（可展示给用户） */
+  matchBlockReason?: string;
 };
 
 export type GeocodeResult = {
@@ -25,6 +32,8 @@ export type GeocodeResult = {
   title?: string;
   address?: string;
   source: 'tencent' | 'mock' | 'fallback';
+  matchReady: boolean;
+  matchBlockReason?: string;
 };
 
 /** 粗略 bbox 演示点（仅 mock） */
@@ -58,6 +67,47 @@ export class TencentMapService {
 
   isConfigured(): boolean {
     return !!this.key();
+  }
+
+  /**
+   * 是否允许 mock 逆地理参与匹配。
+   * ALLOW_MOCK_GEO=1 强制开；=0 强制关；未设时非 production 默认开（本地演示）。
+   */
+  allowMockGeo(): boolean {
+    const flag = this.config.get<string>('ALLOW_MOCK_GEO');
+    if (flag === '1') return true;
+    if (flag === '0') return false;
+    return process.env.NODE_ENV !== 'production';
+  }
+
+  /** 根据 source 判定能否用于匹配区县 */
+  attachMatchMeta<T extends { source: ReverseGeocodeResult['source'] }>(
+    result: T,
+  ): T & { matchReady: boolean; matchBlockReason?: string } {
+    if (result.source === 'tencent') {
+      return { ...result, matchReady: true };
+    }
+    if (result.source === 'mock') {
+      if (this.allowMockGeo()) {
+        return {
+          ...result,
+          matchReady: true,
+          matchBlockReason:
+            '当前为演示逆地理（未配置腾讯 Key 或调用失败），仅限开发/演示环境',
+        };
+      }
+      return {
+        ...result,
+        matchReady: false,
+        matchBlockReason:
+          '地图服务未正确配置，无法解析真实区县，请联系管理员配置 TENCENT_MAP_KEY',
+      };
+    }
+    return {
+      ...result,
+      matchReady: false,
+      matchBlockReason: '区县解析失败，无法用于附近匹配，请重试定位或重新选点',
+    };
   }
 
   /**
@@ -117,13 +167,17 @@ export class TencentMapService {
       }
     }
 
-    this.cache.set(ck, { exp: Date.now() + 10 * 60 * 1000, value: result });
+    const withMeta = this.attachMatchMeta(result);
+    this.cache.set(ck, {
+      exp: Date.now() + 10 * 60 * 1000,
+      value: withMeta,
+    });
     // 简单限容
     if (this.cache.size > 500) {
       const first = this.cache.keys().next().value;
       if (first) this.cache.delete(first);
     }
-    return result;
+    return withMeta;
   }
 
   /**
@@ -162,15 +216,15 @@ export class TencentMapService {
     const key = this.key();
     if (!key) {
       const fb = this.fallbackAdcode();
-      return {
+      return this.attachMatchMeta({
         lat: 38.184,
         lng: 115.201,
         adcode: fb,
         cityCode: this.cityCodeOf(fb),
         title: address,
         address,
-        source: 'mock',
-      };
+        source: 'mock' as const,
+      });
     }
 
     const url = new URL('https://apis.map.qq.com/ws/geocoder/v1/');
@@ -198,15 +252,15 @@ export class TencentMapService {
     }
 
     const adcode = this.normalizeAdcode(data.result.ad_info?.adcode);
-    return {
+    return this.attachMatchMeta({
       lat: data.result.location.lat,
       lng: data.result.location.lng,
       adcode,
       cityCode: this.cityCodeOf(adcode),
       title: data.result.title,
       address,
-      source: 'tencent',
-    };
+      source: 'tencent' as const,
+    });
   }
 
   private async fetchTencentReverse(
@@ -263,6 +317,7 @@ export class TencentMapService {
         data.result.formatted_addresses?.rough ||
         data.result.address,
       source: 'tencent',
+      matchReady: true,
     };
   }
 
@@ -278,7 +333,7 @@ export class TencentMapService {
       }
     }
     const adcode = best.adcode;
-    return {
+    return this.attachMatchMeta({
       lat,
       lng,
       adcode,
@@ -287,20 +342,20 @@ export class TencentMapService {
       recommend: best.name,
       province: best.name.slice(0, 3),
       district: best.name,
-      source: 'mock',
-    };
+      source: 'mock' as const,
+    });
   }
 
   private fallbackResult(lat: number, lng: number): ReverseGeocodeResult {
     const adcode = this.fallbackAdcode();
-    return {
+    return this.attachMatchMeta({
       lat,
       lng,
       adcode,
       cityCode: this.cityCodeOf(adcode),
       address: '未知位置',
       recommend: '未知位置',
-      source: 'fallback',
-    };
+      source: 'fallback' as const,
+    });
   }
 }

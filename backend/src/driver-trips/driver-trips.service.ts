@@ -58,6 +58,23 @@ export class DriverTripsService {
       this.tencentMap.enrichPlace(dto.origin),
       this.tencentMap.enrichPlace(dto.dest),
     ]);
+    // 补全后若仍不可信（生产无 Key 等），拒绝发单，避免错区县入库
+    if (origin.geo && !origin.geo.matchReady) {
+      throw new BadRequestException({
+        code: ErrorCode.BAD_REQUEST,
+        message:
+          origin.geo.matchBlockReason ||
+          '出发地区县无法可靠解析，请重新选点或配置地图服务',
+      });
+    }
+    if (dest.geo && !dest.geo.matchReady) {
+      throw new BadRequestException({
+        code: ErrorCode.BAD_REQUEST,
+        message:
+          dest.geo.matchBlockReason ||
+          '目的地区县无法可靠解析，请重新选点或配置地图服务',
+      });
+    }
 
     return this.prisma.driverTrip.create({
       data: {

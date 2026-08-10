@@ -39,13 +39,19 @@ export class MapService {
       await this.tripFeedbacks.assertDriverNotRestricted(params.userId, 'search');
     }
 
+    // 必须带可信区县，禁止无 adcode 扫全库（防错域/误展示）
+    if (!params.adcode?.trim()) {
+      throw new BadRequestException({
+        code: ErrorCode.BAD_REQUEST,
+        message: '请先定位获取区县后再查看附近行程',
+      });
+    }
+
     await expireStalePosts(this.prisma);
 
     const now = new Date();
     const limit = 200;
-    const filterAdcode = params.adcode
-      ? this.tencentMap.normalizeAdcode(params.adcode)
-      : undefined;
+    const filterAdcode = this.tencentMap.normalizeAdcode(params.adcode);
 
     if (params.mode === 'passenger') {
       const trips = await this.prisma.driverTrip.findMany({
@@ -63,11 +69,7 @@ export class MapService {
         orderBy: { departStart: 'asc' },
       });
       return trips
-        .filter((t) =>
-          filterAdcode
-            ? sameRegion(filterAdcode, t.originAdcode, this.scope())
-            : true,
-        )
+        .filter((t) => sameRegion(filterAdcode, t.originAdcode, this.scope()))
         .map((t) => ({
           id: t.id,
           type: 'driver_trip' as const,
@@ -97,11 +99,7 @@ export class MapService {
       orderBy: { expectStart: 'asc' },
     });
     return reqs
-      .filter((r) =>
-        filterAdcode
-          ? sameRegion(filterAdcode, r.originAdcode, this.scope())
-          : true,
-      )
+      .filter((r) => sameRegion(filterAdcode, r.originAdcode, this.scope()))
       .map((r) => ({
         id: r.id,
         type: 'passenger_request' as const,
@@ -144,8 +142,11 @@ export class MapService {
   status() {
     return {
       tencentConfigured: this.tencentMap.isConfigured(),
+      allowMockGeo: this.tencentMap.allowMockGeo(),
       defaultAdcode: this.config.get('DEFAULT_ADCODE') || '130128',
       matchScope: this.scope(),
+      /** 演示中心（仅用户主动选演示区时使用，不作静默匹配） */
+      demoCenter: { lat: 38.184, lng: 115.201, adcode: '130128', label: '演示区·深泽县' },
     };
   }
 }
