@@ -5,10 +5,9 @@ import { wechatLogin } from '../../services/auth';
 import { useUserStore } from '../../stores/user';
 import { acceptLegal, CURRENT_LEGAL_VERSION } from '../../services/trips';
 import { PageShell } from '../../components/PageShell';
+import './index.scss';
 
-const isDev =
-  process.env.NODE_ENV === 'development' ||
-  process.env.TARO_APP_SHOW_DEV_HINT === '1';
+const isDev = process.env.NODE_ENV === 'development' || process.env.TARO_APP_SHOW_DEV_HINT === '1';
 
 export default function Login() {
   const setAuth = useUserStore((s) => s.setAuth);
@@ -56,26 +55,17 @@ export default function Login() {
 
   return (
     <PageShell>
-      <Text style={{ fontSize: 40, fontWeight: 700 }}>欢迎使用找同行</Text>
-      <View className="eg-muted" style={{ marginTop: 16 }}>
+      <Text className="fs-xxl fw-700">欢迎使用找同行</Text>
+      <View className="eg-muted mt-sm">
         县域信息撮合，帮你发现顺路的车与人。确认同行后才可联系，更安心。
       </View>
 
-      <View
-        className="eg-card"
-        style={{
-          marginTop: 32,
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'flex-start',
-        }}
-        onClick={() => setAgreed((v) => !v)}
-      >
+      <View className="eg-card mt-lg login__agree-row" onClick={() => setAgreed((v) => !v)}>
         <Checkbox value="agree" checked={agreed} color="#1677ff" />
-        <View style={{ marginLeft: 12, flex: 1, fontSize: 24, lineHeight: 1.5 }}>
+        <View className="ml-sm fs-sm login__agree-text">
           <Text>我已阅读并同意</Text>
           <Text
-            style={{ color: '#1677ff' }}
+            className="text-brand"
             onClick={(e) => {
               e.stopPropagation();
               openLegal('user');
@@ -85,7 +75,7 @@ export default function Login() {
           </Text>
           <Text>与</Text>
           <Text
-            style={{ color: '#1677ff' }}
+            className="text-brand"
             onClick={(e) => {
               e.stopPropagation();
               openLegal('platform');
@@ -96,22 +86,14 @@ export default function Login() {
         </View>
       </View>
 
-      <Button className="eg-btn-primary" style={{ marginTop: 40 }} onClick={onLogin}>
+      <Button className="eg-btn-primary mt-xl" onClick={onLogin}>
         微信一键登录
       </Button>
-      <Button
-        className="eg-btn-secondary"
-        style={{ marginTop: 16 }}
-        onClick={() => openLegal()}
-      >
+      <Button className="eg-btn-secondary mt-sm" onClick={() => openLegal()}>
         查看完整协议
       </Button>
 
-      {isDev ? (
-        <View className="eg-muted" style={{ marginTop: 32 }}>
-          开发提示：本地可配置 WECHAT_MOCK=1
-        </View>
-      ) : null}
+      {isDev ? <View className="eg-muted mt-lg">开发提示：本地可配置 WECHAT_MOCK=1</View> : null}
     </PageShell>
   );
 }

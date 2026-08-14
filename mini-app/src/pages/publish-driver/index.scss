@@ -1,0 +1,10 @@
+@use '../../styles/tokens.scss' as *;
+
+.publish-driver__verify-btn {
+  margin-left: $space-xs;
+  display: inline-block;
+  width: auto;
+  padding: 0 $space-md;
+  min-height: 64px;
+  line-height: 64px;
+}

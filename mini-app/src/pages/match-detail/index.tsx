@@ -1,13 +1,9 @@
 import { View, Text, Button } from '@tarojs/components';
 import Taro, { useDidShow, useRouter } from '@tarojs/taro';
 import { useCallback, useState } from 'react';
-import {
-  cancelMatch,
-  completeMatch,
-  contactPhone,
-  myMatches,
-} from '../../services/trips';
+import { cancelMatch, completeMatch, contactPhone, myMatches } from '../../services/trips';
 import { PageShell } from '../../components/PageShell';
+import { LoadingBlock } from '../../components/LoadingBlock';
 import { formatMatchStatus } from '../../utils/format';
 import { useUserStore } from '../../stores/user';
 import { confirmDanger, confirmPrimary } from '../../utils/confirm';
@@ -114,8 +110,7 @@ export default function MatchDetailPage() {
     if (!row) return;
     const ok = await confirmDanger({
       title: '取消本次同行？',
-      content:
-        '取消后座位将退回，对方会收到通知。建议先电话协商。此操作单方即可生效。',
+      content: '取消后座位将退回，对方会收到通知。建议先电话协商。此操作单方即可生效。',
       confirmText: '确认取消',
     });
     if (!ok) return;
@@ -134,7 +129,7 @@ export default function MatchDetailPage() {
   if (loading) {
     return (
       <PageShell>
-        <View className="eg-muted">加载中…</View>
+        <LoadingBlock />
       </PageShell>
     );
   }
@@ -144,7 +139,7 @@ export default function MatchDetailPage() {
       <PageShell>
         <View className="eg-card">
           <Text>未找到匹配单</Text>
-          <Button className="eg-btn-secondary" style={{ marginTop: 16 }} onClick={() => Taro.navigateBack()}>
+          <Button className="eg-btn-secondary mt-sm" onClick={() => Taro.navigateBack()}>
             返回
           </Button>
         </View>
@@ -155,21 +150,19 @@ export default function MatchDetailPage() {
   return (
     <PageShell>
       <View className="eg-card">
-        <Text style={{ fontSize: 34, fontWeight: 700 }}>{route}</Text>
-        <View className="eg-muted" style={{ marginTop: 12 }}>
+        <Text className="fs-xl fw-700">{route}</Text>
+        <View className="eg-muted mt-sm">
           状态 {formatMatchStatus(row.status)}
           {row.seats != null ? ` · ${row.seats} 座` : ''}
         </View>
         {row.peerReview && (
-          <View style={{ marginTop: 12, color: '#595959' }}>
+          <View className="mt-sm text-secondary">
             对方评价 {row.peerReview.rating} 星
             {row.peerReview.content ? ` · ${row.peerReview.content}` : ''}
           </View>
         )}
         {row.reviewedByMe && row.myReview && (
-          <View className="eg-muted" style={{ marginTop: 8 }}>
-            我已评价 {row.myReview.rating} 星
-          </View>
+          <View className="eg-muted mt-xs">我已评价 {row.myReview.rating} 星</View>
         )}
       </View>
 
@@ -182,8 +175,7 @@ export default function MatchDetailPage() {
         )}
         {row.status === 'CONFIRMED' && (
           <Button
-            className="eg-btn-primary"
-            style={{ marginTop: 12 }}
+            className="eg-btn-primary mt-sm"
             loading={busy}
             disabled={busy}
             onClick={onComplete}
@@ -193,8 +185,7 @@ export default function MatchDetailPage() {
         )}
         {row.status === 'CONFIRMED' && (
           <Button
-            className="eg-btn-danger-text"
-            style={{ marginTop: 12 }}
+            className="eg-btn-danger-text mt-sm"
             loading={busy}
             disabled={busy}
             onClick={onCancelMatch}
@@ -203,9 +194,7 @@ export default function MatchDetailPage() {
           </Button>
         )}
         {row.status === 'CANCELLED' && (
-          <View className="eg-muted" style={{ marginTop: 8 }}>
-            本次同行已取消，座位已释放。
-          </View>
+          <View className="eg-muted mt-xs">本次同行已取消，座位已释放。</View>
         )}
         {row.status === 'COMPLETED' && !row.reviewedByMe && (
           <Button
@@ -221,8 +210,7 @@ export default function MatchDetailPage() {
         )}
         {row.driverTripId || row.driverTrip?.id ? (
           <Button
-            className="eg-btn-secondary"
-            style={{ marginTop: 12 }}
+            className="eg-btn-secondary mt-sm"
             onClick={() =>
               Taro.navigateTo({
                 url: `/pages/detail/index?id=${row.driverTripId || row.driverTrip?.id}&type=driver_trip`,
@@ -233,8 +221,7 @@ export default function MatchDetailPage() {
           </Button>
         ) : null}
         <Button
-          className="eg-btn-danger-text"
-          style={{ marginTop: 12 }}
+          className="eg-btn-danger-text mt-sm"
           onClick={() =>
             Taro.navigateTo({
               url: `/pages/report/index?targetType=MATCH&targetId=${row.id}`,

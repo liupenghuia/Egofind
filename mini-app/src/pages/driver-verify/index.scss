@@ -1,0 +1,15 @@
+@use '../../styles/tokens.scss' as *;
+
+.driver-verify__preview {
+  width: 200px;
+  height: 140px;
+  margin-top: $space-sm;
+  border-radius: $radius-sm;
+  background: $color-bg-muted;
+}
+
+.driver-verify__upload-row {
+  display: flex;
+  gap: $space-sm;
+  margin-top: $space-sm;
+}

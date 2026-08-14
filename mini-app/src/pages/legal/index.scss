@@ -1,0 +1,20 @@
+@use '../../styles/tokens.scss' as *;
+
+.legal__scroll {
+  height: 100vh;
+  padding: $space-md;
+  box-sizing: border-box;
+}
+
+.legal__section--focused {
+  background: $color-brand-soft !important;
+}
+
+.legal__body {
+  color: $color-text-primary;
+  line-height: 1.6;
+}
+
+.legal__spacer {
+  height: $space-xl;
+}

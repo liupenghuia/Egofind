@@ -1,5 +1,7 @@
 import { View, Text, ScrollView } from '@tarojs/components';
 import { useRouter } from '@tarojs/taro';
+import '../../styles/common.scss';
+import './index.scss';
 
 const SECTIONS = [
   {
@@ -45,38 +47,23 @@ export default function LegalPage() {
   const focus = section || '';
 
   return (
-    <ScrollView scrollY style={{ height: '100vh', padding: 24, boxSizing: 'border-box' }}>
-      <Text style={{ fontSize: 36, fontWeight: 700 }}>用户协议与平台说明</Text>
-      <View style={{ marginTop: 12, fontSize: 24, color: '#8c8c8c' }}>
-        版本 2026-07-29 · 正式上线前请由负责人/法务审定文案
-      </View>
+    <ScrollView scrollY className="legal__scroll">
+      <Text className="fs-xl fw-700">用户协议与平台说明</Text>
+      <View className="eg-muted mt-sm">版本 2026-07-29 · 正式上线前请由负责人/法务审定文案</View>
       {SECTIONS.map((s) => (
         <View
           key={s.id}
-          style={{
-            marginTop: 28,
-            padding: 16,
-            background: focus === s.id ? '#e6f4ff' : '#fff',
-            borderRadius: 12,
-          }}
+          className={`eg-card mt-lg ${focus === s.id ? 'legal__section--focused' : ''}`}
         >
-          <Text style={{ fontSize: 30, fontWeight: 600 }}>{s.title}</Text>
+          <Text className="eg-section-title">{s.title}</Text>
           {s.body.map((p, i) => (
-            <View
-              key={i}
-              style={{
-                marginTop: 12,
-                fontSize: 26,
-                color: '#434343',
-                lineHeight: 1.6,
-              }}
-            >
+            <View key={i} className="legal__body mt-sm">
               {p}
             </View>
           ))}
         </View>
       ))}
-      <View style={{ height: 48 }} />
+      <View className="legal__spacer" />
     </ScrollView>
   );
 }

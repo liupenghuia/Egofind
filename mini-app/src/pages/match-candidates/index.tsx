@@ -43,9 +43,7 @@ export default function MatchCandidatesPage() {
     try {
       if (mode === 'passenger') {
         const mine = (await myPassengerRequests()) as any[];
-        let open = qId
-          ? mine.find((r) => r.id === qId)
-          : mine.find((r) => OPEN.has(r.status));
+        let open = qId ? mine.find((r) => r.id === qId) : mine.find((r) => OPEN.has(r.status));
         if (!open) {
           open = mine.find((r) => OPEN.has(r.status));
         }
@@ -62,9 +60,7 @@ export default function MatchCandidatesPage() {
         setLoadState(list.length ? 'ready' : 'empty');
       } else {
         const mine = (await myDriverTrips()) as any[];
-        let open = qId
-          ? mine.find((r) => r.id === qId)
-          : mine.find((r) => OPEN.has(r.status));
+        let open = qId ? mine.find((r) => r.id === qId) : mine.find((r) => OPEN.has(r.status));
         if (!open) {
           open = mine.find((r) => OPEN.has(r.status));
         }
@@ -92,10 +88,7 @@ export default function MatchCandidatesPage() {
 
   const goPublish = () => {
     Taro.navigateTo({
-      url:
-        mode === 'driver'
-          ? '/pages/publish-driver/index'
-          : '/pages/publish-passenger/index',
+      url: mode === 'driver' ? '/pages/publish-driver/index' : '/pages/publish-passenger/index',
     });
   };
 
@@ -112,26 +105,13 @@ export default function MatchCandidatesPage() {
           { key: 'list', label: '列表推荐' },
         ]}
       />
-      <Text style={{ fontSize: 34, fontWeight: 600 }}>为你推荐</Text>
-      <View className="eg-muted" style={{ marginTop: 8 }}>
+      <Text className="fs-xl fw-600">为你推荐</Text>
+      <View className="eg-muted mt-xs">
         {mode === 'passenger'
           ? '按匹配度排序（时间/距离/方向综合）'
           : '只读查看公开乘客 · 不可主动联系'}
       </View>
-      {anchorLabel ? (
-        <View
-          style={{
-            marginTop: 12,
-            padding: 12,
-            background: '#e6f4ff',
-            borderRadius: 8,
-            fontSize: 24,
-            color: '#0958d9',
-          }}
-        >
-          基于：{anchorLabel}
-        </View>
-      ) : null}
+      {anchorLabel ? <View className="eg-banner-info mt-sm">基于：{anchorLabel}</View> : null}
 
       {loadState === 'loading' && <LoadingBlock text="加载匹配中…" />}
 
@@ -166,41 +146,33 @@ export default function MatchCandidatesPage() {
           const t = item.trip;
           const price = formatPricePerPerson(t.priceCents);
           return (
-            <View
-              key={t.id}
-              style={{
-                background: '#fff',
-                marginTop: 12,
-                padding: 16,
-                borderRadius: 12,
-              }}
-            >
-              <View style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Text style={{ fontWeight: 600 }}>
+            <View key={t.id} className="eg-card">
+              <View className="eg-row-between">
+                <Text className="fw-600">
                   {t.originName} → {t.destName}
                 </Text>
-                <Text style={{ color: '#1677ff', fontSize: 24 }}>
+                <Text className="text-brand fs-sm">
                   #{idx + 1} · {item.score} 分
                 </Text>
               </View>
-              <View style={{ marginTop: 8, fontSize: 24, color: '#8c8c8c' }}>
+              <View className="eg-muted mt-xs">
                 {formatDepartRange(t.departStart, t.departEnd)}
               </View>
-              <View style={{ marginTop: 4, fontSize: 24, color: '#8c8c8c' }}>
+              <View className="eg-muted mt-xs">
                 约 {item.distanceKm} km · 余座 {t.seatsLeft ?? '-'}
                 {t.status ? ` · ${formatTripStatus(t.status)}` : ''}
               </View>
-              <View style={{ marginTop: 4, fontSize: 24, color: '#8c8c8c' }}>
+              <View className="eg-muted mt-xs">
                 {formatRatingSummary(item.ratingAvg, item.ratingCount)}
               </View>
+              {price && <View className="text-brand fs-sm mt-xs">{price}</View>}
               {price && (
-                <View style={{ marginTop: 4, color: '#1677ff', fontSize: 24 }}>
-                  {price}
+                <View className="text-secondary fs-xs mt-xs">
+                  费用为成本分摊参考，具体请与对方线下协商确定，平台不参与费用往来
                 </View>
               )}
               <Button
-                className="eg-btn-primary"
-                style={{ marginTop: 12 }}
+                className="eg-btn-primary mt-sm"
                 onClick={() =>
                   Taro.navigateTo({
                     url: `/pages/detail/index?id=${t.id}&type=driver_trip`,
@@ -217,38 +189,27 @@ export default function MatchCandidatesPage() {
         driverHits.map((item, idx) => {
           const r = item.request;
           return (
-            <View
-              key={r.id}
-              style={{
-                background: '#fff',
-                marginTop: 12,
-                padding: 16,
-                borderRadius: 12,
-              }}
-            >
-              <View style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Text style={{ fontWeight: 600 }}>
+            <View key={r.id} className="eg-card">
+              <View className="eg-row-between">
+                <Text className="fw-600">
                   {r.originName} → {r.destName}
                 </Text>
-                <Text style={{ color: '#0b6e4f', fontSize: 24 }}>
+                <Text className="text-driver fs-sm">
                   #{idx + 1} · {item.score} 分
                 </Text>
               </View>
-              <View style={{ marginTop: 8, fontSize: 24, color: '#8c8c8c' }}>
+              <View className="eg-muted mt-xs">
                 {formatDepartRange(r.expectStart, r.expectEnd)}
               </View>
-              <View style={{ marginTop: 4, fontSize: 24, color: '#8c8c8c' }}>
+              <View className="eg-muted mt-xs">
                 约 {item.distanceKm} km · 需要 {r.seatsNeeded ?? '-'} 座
               </View>
-              <View style={{ marginTop: 4, fontSize: 24, color: '#8c8c8c' }}>
+              <View className="eg-muted mt-xs">
                 {formatRatingSummary(item.ratingAvg, item.ratingCount)}
               </View>
-              <View style={{ marginTop: 8, fontSize: 22, color: '#8c8c8c' }}>
-                司机端仅可查看，不可主动联系
-              </View>
+              <View className="text-secondary fs-xs mt-xs">司机端仅可查看，不可主动联系</View>
               <Button
-                className="eg-btn-secondary"
-                style={{ marginTop: 12 }}
+                className="eg-btn-secondary mt-sm"
                 onClick={() =>
                   Taro.navigateTo({
                     url: `/pages/detail/index?id=${r.id}&type=passenger_request`,
@@ -262,7 +223,7 @@ export default function MatchCandidatesPage() {
         })}
 
       {(loadState === 'ready' || loadState === 'empty') && (
-        <Button className="eg-btn-secondary" style={{ marginTop: 20 }} onClick={() => load()}>
+        <Button className="eg-btn-secondary mt-sm" onClick={() => load()}>
           刷新
         </Button>
       )}

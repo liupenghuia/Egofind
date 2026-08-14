@@ -41,26 +41,16 @@ export default function ReviewPage() {
   return (
     <PageShell>
       <View className="eg-card">
-        <Text style={{ fontSize: 34, fontWeight: 600 }}>评价对方</Text>
-        <View className="eg-muted" style={{ marginTop: 12 }}>
-          点击星星选择 1–5 星
-        </View>
+        <Text className="fs-xl fw-600">评价对方</Text>
+        <View className="eg-muted mt-sm">点击星星选择 1–5 星</View>
         <StarRating value={rating} onChange={setRating} />
-        {rating > 0 && (
-          <View style={{ color: '#faad14', fontWeight: 600 }}>{rating} 星</View>
-        )}
+        {rating > 0 && <View className="text-warning fw-600">{rating} 星</View>}
       </View>
       <View className="eg-card">
         <View className="eg-section-title">选填评语</View>
         <Textarea
-          style={{
-            width: '100%',
-            minHeight: 160,
-            background: '#f5f6f8',
-            padding: 16,
-            borderRadius: 8,
-            boxSizing: 'border-box',
-          }}
+          className="eg-input"
+          style={{ minHeight: 160 }}
           maxlength={500}
           value={content}
           onInput={(e) => setContent(e.detail.value)}

@@ -10,17 +10,12 @@ import {
   myMatches,
   myPassengerRequests,
 } from '../../services/trips';
-import {
-  formatDepartRange,
-  formatPricePerPerson,
-  formatTripStatus,
-} from '../../utils/format';
+import { formatDepartRange, formatPricePerPerson, formatTripStatus } from '../../utils/format';
 import { PageShell } from '../../components/PageShell';
+import { LoadingBlock } from '../../components/LoadingBlock';
 import { handleActionError } from '../../utils/legal-guard';
-import {
-  ensurePhoneBound,
-  handlePhoneRequiredError,
-} from '../../utils/phone-guard';
+import { ensurePhoneBound, handlePhoneRequiredError } from '../../utils/phone-guard';
+import './index.scss';
 
 type LoadState = 'loading' | 'ready' | 'error';
 
@@ -67,10 +62,7 @@ export default function Detail() {
     }
     setLoadState('loading');
     try {
-      const data =
-        type === 'driver_trip'
-          ? await getDriverTrip(id)
-          : await getPassengerRequest(id);
+      const data = type === 'driver_trip' ? await getDriverTrip(id) : await getPassengerRequest(id);
       setDetail(data);
       setLoadState('ready');
       if (type === 'driver_trip' && mode === 'passenger') {
@@ -104,9 +96,7 @@ export default function Detail() {
     setConfirming(true);
     try {
       const mine = (await myPassengerRequests()) as any[];
-      const open = mine.find(
-        (r) => r.status === 'MATCHING' || r.status === 'PUBLISHED',
-      );
+      const open = mine.find((r) => r.status === 'MATCHING' || r.status === 'PUBLISHED');
       if (!open) {
         Taro.showModal({
           title: '请先发布人找车',
@@ -132,9 +122,7 @@ export default function Detail() {
       if (accepted) {
         try {
           const mine2 = (await myPassengerRequests()) as any[];
-          const open2 = mine2.find(
-            (r) => r.status === 'MATCHING' || r.status === 'PUBLISHED',
-          );
+          const open2 = mine2.find((r) => r.status === 'MATCHING' || r.status === 'PUBLISHED');
           if (open2) {
             const order = (await confirmMatch(id!, open2.id)) as { id: string };
             setMatchId(order.id);
@@ -179,7 +167,7 @@ export default function Detail() {
   if (loadState === 'loading' && !detail) {
     return (
       <PageShell>
-        <View className="eg-muted">加载中…</View>
+        <LoadingBlock />
       </PageShell>
     );
   }
@@ -189,10 +177,10 @@ export default function Detail() {
       <PageShell>
         <View className="eg-card">
           <Text>加载失败</Text>
-          <Button className="eg-btn-primary" style={{ marginTop: 16 }} onClick={() => load()}>
+          <Button className="eg-btn-primary mt-sm" onClick={() => load()}>
             重试
           </Button>
-          <Button className="eg-btn-secondary" style={{ marginTop: 12 }} onClick={() => Taro.navigateBack()}>
+          <Button className="eg-btn-secondary mt-sm" onClick={() => Taro.navigateBack()}>
             返回
           </Button>
         </View>
@@ -208,35 +196,31 @@ export default function Detail() {
     type === 'driver_trip'
       ? formatDepartRange(detail.departStart, detail.departEnd)
       : formatDepartRange(detail.expectStart, detail.expectEnd);
-  const priceLabel =
-    type === 'driver_trip' ? formatPricePerPerson(detail.priceCents) : null;
+  const priceLabel = type === 'driver_trip' ? formatPricePerPerson(detail.priceCents) : null;
   const cannotAccept = !!detail.isFull || detail.canAcceptPassenger === false;
   const confirmed = !!matchId;
   const isPassengerDriverTrip = type === 'driver_trip' && mode === 'passenger';
 
-  const step =
-    !isPassengerDriverTrip ? 0 : confirmed ? 3 : cannotAccept ? 1 : 2;
+  const step = !isPassengerDriverTrip ? 0 : confirmed ? 3 : cannotAccept ? 1 : 2;
 
   return (
     <View style={{ paddingBottom: isPassengerDriverTrip ? 160 : 24 }}>
       <PageShell>
         <View className="eg-card">
-          <Text style={{ fontSize: 34, fontWeight: 700 }}>
+          <Text className="fs-xl fw-700">
             {detail.originName} → {detail.destName}
           </Text>
-          <View className="eg-muted" style={{ marginTop: 12 }}>
-            {timeLabel}
-          </View>
-          <View style={{ marginTop: 8 }}>{seatsLabel}</View>
+          <View className="eg-muted mt-sm">{timeLabel}</View>
+          <View className="mt-xs">{seatsLabel}</View>
+          {priceLabel && <View className="mt-xs text-brand">{priceLabel}</View>}
           {priceLabel && (
-            <View style={{ marginTop: 8, color: '#1677ff' }}>{priceLabel}</View>
+            <View className="eg-muted mt-xs">
+              费用为成本分摊参考，具体请与对方线下协商确定，平台不参与费用往来
+            </View>
           )}
           {type === 'driver_trip' && (
             <View
-              style={{
-                marginTop: 8,
-                color: detail.isFull ? '#ff4d4f' : '#52c41a',
-              }}
+              className={`mt-xs ${detail.isFull ? 'detail__status--full' : 'detail__status--available'}`}
             >
               {detail.isFull
                 ? '已满员，换一趟试试'
@@ -245,14 +229,11 @@ export default function Detail() {
                   : '当前不可接'}
             </View>
           )}
-          <View className="eg-muted" style={{ marginTop: 8 }}>
-            状态 {formatTripStatus(detail.status)}
-          </View>
-          <View style={{ marginTop: 8 }}>备注 {detail.remark || '-'}</View>
+          <View className="eg-muted mt-xs">状态 {formatTripStatus(detail.status)}</View>
+          <View className="mt-xs">备注 {detail.remark || '-'}</View>
           {peerReview && (
-            <View style={{ marginTop: 12 }}>
-              对方评价：{peerReview.rating} 星
-              {peerReview.content ? ` · ${peerReview.content}` : ''}
+            <View className="mt-sm">
+              对方评价：{peerReview.rating} 星{peerReview.content ? ` · ${peerReview.content}` : ''}
             </View>
           )}
         </View>
@@ -260,10 +241,8 @@ export default function Detail() {
         {isPassengerDriverTrip && (
           <View className="eg-card">
             <View className="eg-section-title">进度</View>
-            <View className="eg-muted">
-              1 查看信息 → 2 确认同行 → 3 联系司机
-            </View>
-            <View style={{ marginTop: 8, fontWeight: 600, color: '#1677ff' }}>
+            <View className="eg-muted">1 查看信息 → 2 确认同行 → 3 联系司机</View>
+            <View className="mt-xs fw-600 text-brand">
               当前：第 {step || 1} 步
               {confirmed ? '（已确认，可联系）' : cannotAccept ? '（暂不可确认）' : '（可确认）'}
             </View>
@@ -277,8 +256,7 @@ export default function Detail() {
         <Button
           className="eg-btn-danger-text"
           onClick={() => {
-            const targetType =
-              type === 'passenger_request' ? 'PASSENGER_REQUEST' : 'DRIVER_TRIP';
+            const targetType = type === 'passenger_request' ? 'PASSENGER_REQUEST' : 'DRIVER_TRIP';
             const targetUserId = detail?.user?.id || detail?.userId || '';
             const q = [
               `targetType=${targetType}`,
@@ -292,24 +270,13 @@ export default function Detail() {
         >
           举报
         </Button>
-        <Button className="eg-btn-secondary" style={{ marginTop: 12 }} onClick={() => load()}>
+        <Button className="eg-btn-secondary mt-sm" onClick={() => load()}>
           刷新
         </Button>
       </PageShell>
 
       {isPassengerDriverTrip && (
-        <View
-          style={{
-            position: 'fixed',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            padding: '16px 24px calc(16px + env(safe-area-inset-bottom))',
-            background: '#fff',
-            boxShadow: '0 -4px 16px rgba(0,0,0,0.06)',
-            zIndex: 100,
-          }}
-        >
+        <View className="detail__action-bar">
           {!confirmed && (
             <>
               <Button
@@ -320,15 +287,12 @@ export default function Detail() {
               >
                 确认同行
               </Button>
-              <View className="eg-muted" style={{ marginTop: 8, textAlign: 'center' }}>
+              <View className="eg-muted mt-xs" style={{ textAlign: 'center' }}>
                 确认后可联系司机
               </View>
               <Button
-                className="eg-btn-secondary"
-                style={{ marginTop: 8 }}
-                onClick={() =>
-                  Taro.navigateTo({ url: `/pages/feedback/index?tripId=${id}` })
-                }
+                className="eg-btn-secondary mt-xs"
+                onClick={() => Taro.navigateTo({ url: `/pages/feedback/index?tripId=${id}` })}
               >
                 无法同行，去反馈
               </Button>
@@ -336,9 +300,7 @@ export default function Detail() {
           )}
           {confirmed && (
             <>
-              <View style={{ color: '#52c41a', fontWeight: 600, marginBottom: 8 }}>
-                已确认同行 ✓
-              </View>
+              <View className="text-success fw-600 mb-xs">已确认同行 ✓</View>
               <Button
                 className="eg-btn-primary"
                 loading={calling}
@@ -349,8 +311,7 @@ export default function Detail() {
               </Button>
               {matchId && (
                 <Button
-                  className="eg-btn-secondary"
-                  style={{ marginTop: 8 }}
+                  className="eg-btn-secondary mt-xs"
                   onClick={() =>
                     Taro.navigateTo({
                       url: `/pages/match-detail/index?id=${matchId}`,

@@ -22,9 +22,7 @@ type MatchBrief = {
 
 export default function Index() {
   const { token, mode, user } = useUserStore();
-  const [driverStatus, setDriverStatus] = useState<DriverQuotaStatus | null>(
-    null,
-  );
+  const [driverStatus, setDriverStatus] = useState<DriverQuotaStatus | null>(null);
   const [unread, setUnread] = useState(0);
   const [activeMatch, setActiveMatch] = useState<MatchBrief | null>(null);
 
@@ -66,10 +64,7 @@ export default function Index() {
       return;
     }
     Taro.navigateTo({
-      url:
-        mode === 'driver'
-          ? '/pages/publish-driver/index'
-          : '/pages/publish-passenger/index',
+      url: mode === 'driver' ? '/pages/publish-driver/index' : '/pages/publish-passenger/index',
     });
   };
 
@@ -88,20 +83,16 @@ export default function Index() {
       )}
       {mode === 'driver' && driverStatus && !driverStatus?.restricted && (
         <View className="eg-banner-info">
-          本月司机原因反馈 {driverStatus.driverReasonCount}/
-          {driverStatus.limit}，剩余 {driverStatus.remaining} 次
+          本月司机原因反馈 {driverStatus.driverReasonCount}/{driverStatus.limit}，剩余{' '}
+          {driverStatus.remaining} 次
         </View>
       )}
 
       <View
-        className={
-          mode === 'driver' ? 'eg-hero eg-hero--driver' : 'eg-hero eg-hero--passenger'
-        }
+        className={mode === 'driver' ? 'eg-hero eg-hero--driver' : 'eg-hero eg-hero--passenger'}
       >
         <Text className="eg-hero__title">找同行</Text>
-        <Text className="eg-hero__sub">
-          你好，{user?.nickname || '微信用户'}
-        </Text>
+        <Text className="eg-hero__sub">你好，{user?.nickname || '微信用户'}</Text>
       </View>
 
       <ModeSegment
@@ -120,13 +111,10 @@ export default function Index() {
       {activeMatch ? (
         <View className="eg-card">
           <View className="eg-section-title">进行中</View>
-          <Text style={{ fontWeight: 600 }}>{routeLabel(activeMatch)}</Text>
-          <View className="eg-muted" style={{ marginTop: 8 }}>
-            状态 {formatMatchStatus(activeMatch.status)}
-          </View>
+          <Text className="fw-600">{routeLabel(activeMatch)}</Text>
+          <View className="eg-muted mt-xs">状态 {formatMatchStatus(activeMatch.status)}</View>
           <Button
-            className="eg-btn-primary"
-            style={{ marginTop: 16 }}
+            className="eg-btn-primary mt-sm"
             onClick={() => Taro.switchTab({ url: '/pages/list/index' })}
           >
             查看行程
@@ -140,16 +128,11 @@ export default function Index() {
               ? '发布人找车，或去附近看看有没有顺路的车'
               : '发布车找人，让乘客发现你的空座'}
           </View>
-          <Button
-            className="eg-btn-primary"
-            style={{ marginTop: 16 }}
-            onClick={goPublish}
-          >
+          <Button className="eg-btn-primary mt-sm" onClick={goPublish}>
             {mode === 'driver' ? '发布车找人' : '发布人找车'}
           </Button>
           <Button
-            className="eg-btn-secondary"
-            style={{ marginTop: 12 }}
+            className="eg-btn-secondary mt-sm"
             onClick={() => Taro.switchTab({ url: '/pages/map/index' })}
           >
             去地图发现
@@ -160,33 +143,24 @@ export default function Index() {
       <View className="eg-entry-row">
         <View
           className="eg-entry"
-          onClick={() =>
-            Taro.navigateTo({ url: '/pages/match-candidates/index' })
-          }
+          onClick={() => Taro.navigateTo({ url: '/pages/match-candidates/index' })}
         >
           <Text className="eg-entry__title">为你推荐</Text>
           <Text className="eg-entry__desc">按匹配度排序</Text>
         </View>
         <View
           className="eg-entry"
-          onClick={() =>
-            Taro.navigateTo({ url: '/pages/notifications/index' })
-          }
+          onClick={() => Taro.navigateTo({ url: '/pages/notifications/index' })}
         >
-          <Text className="eg-entry__title">
-            {unread > 0 ? `消息 ${unread}` : '消息'}
-          </Text>
+          <Text className="eg-entry__title">{unread > 0 ? `消息 ${unread}` : '消息'}</Text>
           <Text className="eg-entry__desc">通知与提醒</Text>
         </View>
       </View>
 
       {mode === 'driver' && (
         <View
-          className="eg-entry"
-          style={{ marginBottom: 24 }}
-          onClick={() =>
-            Taro.navigateTo({ url: '/pages/driver-verify/index' })
-          }
+          className="eg-entry mb-md"
+          onClick={() => Taro.navigateTo({ url: '/pages/driver-verify/index' })}
         >
           <Text className="eg-entry__title">司机认证</Text>
           <Text className="eg-entry__desc">通过后才可发布车找人</Text>

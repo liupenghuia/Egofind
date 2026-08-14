@@ -1,11 +1,9 @@
 import { View, Text, Button, Textarea } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import { useState } from 'react';
-import {
-  submitReport,
-  type ReportReasonCode,
-  type ReportTargetType,
-} from '../../services/trips';
+import { submitReport, type ReportReasonCode, type ReportTargetType } from '../../services/trips';
+import { PageShell } from '../../components/PageShell';
+import './index.scss';
 
 const REASONS: { code: ReportReasonCode; label: string }[] = [
   { code: 'harassment', label: '骚扰 / 频繁打扰' },
@@ -17,12 +15,7 @@ const REASONS: { code: ReportReasonCode; label: string }[] = [
 
 function normalizeTargetType(raw?: string): ReportTargetType {
   const t = (raw || 'DRIVER_TRIP').toUpperCase();
-  if (
-    t === 'USER' ||
-    t === 'DRIVER_TRIP' ||
-    t === 'PASSENGER_REQUEST' ||
-    t === 'MATCH'
-  ) {
+  if (t === 'USER' || t === 'DRIVER_TRIP' || t === 'PASSENGER_REQUEST' || t === 'MATCH') {
     return t;
   }
   return 'DRIVER_TRIP';
@@ -66,17 +59,17 @@ export default function ReportPage() {
   };
 
   return (
-    <View style={{ padding: 24 }}>
-      <Text style={{ fontSize: 34, fontWeight: 600 }}>举报</Text>
-      <View style={{ marginTop: 12, fontSize: 24, color: '#8c8c8c' }}>
+    <PageShell>
+      <Text className="fs-xl fw-600">举报</Text>
+      <View className="eg-muted mt-sm">
         我们会尽快处理。请勿提交虚假信息；不会向对方展示您的完整隐私。
       </View>
-      <View style={{ marginTop: 8, fontSize: 22, color: '#bfbfbf' }}>
+      <View className="text-secondary fs-xs mt-xs">
         目标 {targetType} · {targetId.slice(0, 12)}…
       </View>
 
-      <View style={{ marginTop: 24, fontWeight: 600 }}>举报原因 *</View>
-      <View style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 12 }}>
+      <View className="mt-md fw-600">举报原因 *</View>
+      <View className="report__reason-list mt-sm">
         {REASONS.map((r) => (
           <Button
             key={r.code}
@@ -88,17 +81,10 @@ export default function ReportPage() {
         ))}
       </View>
 
-      <View style={{ marginTop: 24, fontWeight: 600 }}>补充说明（选填）</View>
+      <View className="mt-md fw-600">补充说明（选填）</View>
       <Textarea
-        style={{
-          marginTop: 12,
-          width: '100%',
-          minHeight: 160,
-          background: '#fff',
-          padding: 16,
-          borderRadius: 8,
-          boxSizing: 'border-box',
-        }}
+        className="eg-input mt-sm"
+        style={{ minHeight: 160 }}
         maxlength={500}
         value={detail}
         onInput={(e) => setDetail(e.detail.value)}
@@ -106,14 +92,13 @@ export default function ReportPage() {
       />
 
       <Button
-        type="warn"
-        style={{ marginTop: 32 }}
+        className="eg-btn-primary mt-lg"
         loading={submitting}
         disabled={submitting || !reasonCode}
         onClick={onSubmit}
       >
         提交举报
       </Button>
-    </View>
+    </PageShell>
   );
 }

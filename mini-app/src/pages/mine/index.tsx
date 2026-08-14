@@ -3,17 +3,12 @@ import Taro, { useDidShow } from '@tarojs/taro';
 import { useState } from 'react';
 import { useUserStore } from '../../stores/user';
 import { request } from '../../services/request';
-import {
-  getDriverVerifyStatus,
-  notificationsUnreadCount,
-} from '../../services/trips';
+import { getDriverVerifyStatus, notificationsUnreadCount } from '../../services/trips';
 import { PageShell } from '../../components/PageShell';
 import { ModeSegment } from '../../components/ModeSegment';
 import { syncCustomTabBar } from '../../utils/tab-bar';
 
-const isDev =
-  process.env.NODE_ENV === 'development' ||
-  process.env.TARO_APP_SHOW_DEV_HINT === '1';
+const isDev = process.env.NODE_ENV === 'development' || process.env.TARO_APP_SHOW_DEV_HINT === '1';
 
 export default function Mine() {
   const { user, logout, mode } = useUserStore();
@@ -67,40 +62,30 @@ export default function Mine() {
       <ModeSegment onChange={() => syncCustomTabBar('/pages/mine/index')} />
 
       <View className="eg-card">
-        <Text style={{ fontSize: 34, fontWeight: 600 }}>
-          {user?.nickname || '微信用户'}
-        </Text>
-        <View className="eg-muted" style={{ marginTop: 8 }}>
+        <Text className="fs-xl fw-600">{user?.nickname || '微信用户'}</Text>
+        <View className="eg-muted mt-xs">
           {mode === 'passenger' ? '乘客模式' : '司机模式'}
           {user?.roles?.length ? ` · ${user.roles.join(',')}` : ''}
         </View>
-        {user?.phoneMask ? (
-          <View className="eg-muted" style={{ marginTop: 4 }}>
-            手机 {user.phoneMask}
-          </View>
-        ) : null}
+        {user?.phoneMask ? <View className="eg-muted mt-xs">手机 {user.phoneMask}</View> : null}
       </View>
 
       <View className="eg-card">
         <View className="eg-section-title">常用</View>
         <Button
           className="eg-btn-secondary"
-          onClick={() =>
-            Taro.navigateTo({ url: '/pages/notifications/index' })
-          }
+          onClick={() => Taro.navigateTo({ url: '/pages/notifications/index' })}
         >
           {unread > 0 ? `消息通知（${unread}）` : '消息通知'}
         </Button>
         <Button
-          className="eg-btn-secondary"
-          style={{ marginTop: 12 }}
+          className="eg-btn-secondary mt-sm"
           onClick={() => Taro.navigateTo({ url: '/pages/driver-verify/index' })}
         >
           司机认证 · {verifyHint}
         </Button>
         <Button
-          className="eg-btn-secondary"
-          style={{ marginTop: 12 }}
+          className="eg-btn-secondary mt-sm"
           onClick={() => Taro.navigateTo({ url: '/pages/legal/index' })}
         >
           用户协议与平台说明
@@ -109,12 +94,9 @@ export default function Mine() {
 
       <View className="eg-card">
         <View className="eg-section-title">手机号</View>
-        <View className="eg-muted">
-          确认同行后联系司机需要授权手机号
-        </View>
+        <View className="eg-muted">确认同行后联系司机需要授权手机号</View>
         <Button
-          className="eg-btn-primary"
-          style={{ marginTop: 16 }}
+          className="eg-btn-primary mt-sm"
           openType="getPhoneNumber"
           onGetPhoneNumber={onGetPhoneNumber}
         >
@@ -122,24 +104,9 @@ export default function Mine() {
         </Button>
         {isDev ? (
           <>
-            <View className="eg-muted" style={{ marginTop: 16 }}>
-              开发：mock 绑定
-            </View>
-            <Input
-              value={phone}
-              onInput={(e) => setPhone(e.detail.value)}
-              style={{
-                background: '#f5f6f8',
-                marginTop: 8,
-                padding: 12,
-                borderRadius: 8,
-              }}
-            />
-            <Button
-              className="eg-btn-secondary"
-              style={{ marginTop: 12 }}
-              onClick={bindMock}
-            >
+            <View className="eg-muted mt-sm">开发：mock 绑定</View>
+            <Input value={phone} onInput={(e) => setPhone(e.detail.value)} className="eg-input" />
+            <Button className="eg-btn-secondary mt-sm" onClick={bindMock}>
               mock 绑定手机
             </Button>
           </>

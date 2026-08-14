@@ -49,8 +49,7 @@ export default function ListPage() {
   const onCancelPublish = async (id: string) => {
     const ok = await confirmDanger({
       title: '取消发布？',
-      content:
-        '取消后该发布将离开匹配池与地图，附近用户将看不到。此操作不可恢复。',
+      content: '取消后该发布将离开匹配池与地图，附近用户将看不到。此操作不可恢复。',
       confirmText: '确认取消',
     });
     if (!ok) return;
@@ -113,40 +112,26 @@ export default function ListPage() {
           )}
           {rows.map((r) => (
             <View key={r.id} className="eg-card">
-              <Text style={{ fontWeight: 600 }}>
+              <Text className="fw-600">
                 {r.originName} → {r.destName}
               </Text>
-              <View className="eg-muted" style={{ marginTop: 8 }}>
-                状态 {formatTripStatus(r.status)}
-              </View>
-              {mode === 'passenger' &&
-                (r.status === 'PUBLISHED' || r.status === 'MATCHING') && (
-                  <View
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      marginTop: 12,
-                      justifyContent: 'space-between',
+              <View className="eg-muted mt-xs">状态 {formatTripStatus(r.status)}</View>
+              {mode === 'passenger' && (r.status === 'PUBLISHED' || r.status === 'MATCHING') && (
+                <View className="eg-row-between mt-sm">
+                  <Text>公开</Text>
+                  <Switch
+                    checked={r.visibility === 'PUBLIC'}
+                    onChange={async (e) => {
+                      await setVisibility(r.id, e.detail.value ? 'PUBLIC' : 'HIDDEN');
+                      load();
                     }}
-                  >
-                    <Text>公开</Text>
-                    <Switch
-                      checked={r.visibility === 'PUBLIC'}
-                      onChange={async (e) => {
-                        await setVisibility(
-                          r.id,
-                          e.detail.value ? 'PUBLIC' : 'HIDDEN',
-                        );
-                        load();
-                      }}
-                    />
-                  </View>
-                )}
+                  />
+                </View>
+              )}
               {(r.status === 'PUBLISHED' || r.status === 'MATCHING') && (
                 <>
                   <Button
-                    className="eg-btn-primary"
-                    style={{ marginTop: 12 }}
+                    className="eg-btn-primary mt-sm"
                     onClick={() =>
                       Taro.navigateTo({
                         url: `/pages/match-candidates/index?anchorId=${r.id}`,
@@ -156,8 +141,7 @@ export default function ListPage() {
                     看匹配
                   </Button>
                   <Button
-                    className="eg-btn-danger-text"
-                    style={{ marginTop: 8 }}
+                    className="eg-btn-danger-text mt-xs"
                     onClick={() => onCancelPublish(r.id)}
                   >
                     取消发布
@@ -181,24 +165,19 @@ export default function ListPage() {
           )}
           {matches.map((m) => (
             <View key={m.id} className="eg-card">
-              <Text style={{ fontWeight: 600 }}>{routeLabel(m)}</Text>
-              <View className="eg-muted" style={{ marginTop: 8 }}>
+              <Text className="fw-600">{routeLabel(m)}</Text>
+              <View className="eg-muted mt-xs">
                 状态 {formatMatchStatus(m.status)}
                 {m.seats != null ? ` · ${m.seats} 座` : ''}
               </View>
               {m.peerReview && (
-                <View className="eg-muted" style={{ marginTop: 4 }}>
-                  对方已评 {m.peerReview.rating} 星
-                </View>
+                <View className="eg-muted mt-xs">对方已评 {m.peerReview.rating} 星</View>
               )}
               {m.reviewedByMe && m.myReview && (
-                <View style={{ marginTop: 4, color: '#52c41a', fontSize: 24 }}>
-                  已评价 {m.myReview.rating} 星
-                </View>
+                <View className="mt-xs text-success fs-sm">已评价 {m.myReview.rating} 星</View>
               )}
               <Button
-                className="eg-btn-primary"
-                style={{ marginTop: 12 }}
+                className="eg-btn-primary mt-sm"
                 onClick={() =>
                   Taro.navigateTo({
                     url: `/pages/match-detail/index?id=${m.id}`,
@@ -212,7 +191,7 @@ export default function ListPage() {
         </>
       )}
 
-      <Button className="eg-btn-secondary" style={{ marginTop: 8 }} onClick={() => load()}>
+      <Button className="eg-btn-secondary mt-xs" onClick={() => load()}>
         刷新
       </Button>
     </PageShell>

@@ -8,34 +8,19 @@ type Props = {
 
 export function StarRating({ value, onChange, size = 48 }: Props) {
   return (
-    <View
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: '16px 0',
-      }}
-    >
+    <View className="star-rating">
       {[1, 2, 3, 4, 5].map((n) => {
         const on = value >= n;
         return (
           <View
             key={n}
             onClick={() => onChange(n)}
-            style={{
-              width: size + 24,
-              height: size + 24,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+            className="star-rating__item"
+            style={{ width: size + 24, height: size + 24 }}
           >
             <Text
-              style={{
-                fontSize: size,
-                color: on ? '#faad14' : '#d9d9d9',
-                lineHeight: 1,
-              }}
+              className={`star-rating__star ${on ? 'star-rating__star--on' : 'star-rating__star--off'}`}
+              style={{ fontSize: size }}
             >
               ★
             </Text>

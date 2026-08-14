@@ -27,7 +27,7 @@
 }
 
 .map-header__adcode {
-  margin-top: 4px;
+  margin-top: $space-xs;
   font-size: $font-xs;
   color: $color-text-secondary;
   opacity: 0.85;
@@ -42,15 +42,6 @@
 
 .map-header__status--error {
   color: $color-danger;
-}
-
-.map-header__restrict {
-  background: #fff2f0;
-  color: #a8071a;
-  padding: $space-sm;
-  margin-bottom: $space-sm;
-  border-radius: $radius-sm;
-  font-size: $font-sm;
 }
 
 .map-canvas {

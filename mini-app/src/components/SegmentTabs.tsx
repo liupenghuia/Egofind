@@ -12,7 +12,7 @@ type Props = {
 export function SegmentTabs({ items, value, onChange }: Props) {
   const mode = useUserStore((s) => s.mode);
   return (
-    <View className="eg-mode-segment" style={{ marginBottom: 16 }}>
+    <View className="eg-mode-segment mb-sm">
       {items.map((it) => {
         const active = it.key === value;
         const activeClass =
@@ -22,11 +22,7 @@ export function SegmentTabs({ items, value, onChange }: Props) {
         return (
           <View
             key={it.key}
-            className={
-              active
-                ? `eg-mode-segment__item ${activeClass}`
-                : 'eg-mode-segment__item'
-            }
+            className={active ? `eg-mode-segment__item ${activeClass}` : 'eg-mode-segment__item'}
             onClick={() => onChange(it.key)}
           >
             <Text>{it.label}</Text>

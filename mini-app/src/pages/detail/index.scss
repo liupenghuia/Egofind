@@ -1,0 +1,20 @@
+@use '../../styles/tokens.scss' as *;
+
+.detail__status--full {
+  color: $color-danger;
+}
+
+.detail__status--available {
+  color: $color-success;
+}
+
+.detail__action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $space-sm $space-md calc(#{$space-sm} + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: $shadow-tab;
+  z-index: 100;
+}

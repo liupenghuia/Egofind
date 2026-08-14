@@ -4,15 +4,13 @@ import { useState } from 'react';
 import { useUserStore } from '../../stores/user';
 import { getDriverQuotaStatus, mapMarkers } from '../../services/trips';
 import { locateCurrentPlace } from '../../utils/location';
-import {
-  formatDepartTime,
-  formatPricePerPerson,
-} from '../../utils/format';
+import { formatDepartTime, formatPricePerPerson } from '../../utils/format';
 import { ModeSegment } from '../../components/ModeSegment';
 import { SegmentTabs } from '../../components/SegmentTabs';
 import { syncCustomTabBar } from '../../utils/tab-bar';
 import markerDriver from '../../assets/map/marker-driver.png';
 import markerPassenger from '../../assets/map/marker-passenger.png';
+import '../../styles/common.scss';
 import './index.scss';
 
 type MapMarkerRow = {
@@ -60,8 +58,7 @@ export default function MapPage() {
       }
       const list = await mapMarkers(mode, code);
       // 乘客看车找人→蓝标；司机看人找车→橙标（design-system color-map-*）
-      const iconPath =
-        mode === 'passenger' ? markerDriver : markerPassenger;
+      const iconPath = mode === 'passenger' ? markerDriver : markerPassenger;
       const rows: MapMarkerRow[] = list.map((m, i) => ({
         id: i + 1,
         latitude: m.lat,
@@ -91,9 +88,7 @@ export default function MapPage() {
     if (place) {
       setAdcode(place.adcode);
       setCenter({ lat: place.lat, lng: place.lng });
-      const friendly =
-        [place.district, place.city].filter(Boolean).join(' · ') ||
-        '当前定位区县';
+      const friendly = [place.district, place.city].filter(Boolean).join(' · ') || '当前定位区县';
       setRegionLabel(friendly);
       await load(place.adcode);
     } else {
@@ -114,9 +109,7 @@ export default function MapPage() {
   };
 
   const priceLabel =
-    selected && mode === 'passenger'
-      ? formatPricePerPerson(selected.priceCents)
-      : null;
+    selected && mode === 'passenger' ? formatPricePerPerson(selected.priceCents) : null;
 
   const statusHint =
     loadState === 'loading'
@@ -145,9 +138,7 @@ export default function MapPage() {
             { key: 'list', label: '列表推荐' },
           ]}
         />
-        {restrictTip && (
-          <View className="map-header__restrict">{restrictTip}</View>
-        )}
+        {restrictTip && <View className="eg-banner-danger">{restrictTip}</View>}
         <Text className="map-header__title">
           {mode === 'passenger' ? '附近车找人' : '附近人找车（仅公开）'}
         </Text>
@@ -164,22 +155,17 @@ export default function MapPage() {
             {statusHint}
           </Text>
         )}
-        <Button className="eg-btn-primary" style={{ marginTop: 8 }} onClick={refreshRegion}>
+        <Button className="eg-btn-primary mt-xs" onClick={refreshRegion}>
           定位并刷新
         </Button>
         {loadState === 'error' && (
-          <Button
-            className="eg-btn-secondary"
-            style={{ marginTop: 8 }}
-            onClick={() => load(adcode)}
-          >
+          <Button className="eg-btn-secondary mt-xs" onClick={() => load(adcode)}>
             重试
           </Button>
         )}
       </View>
       <Map
         className="map-canvas"
-        style={{ width: '100%', height: '65vh' }}
         latitude={center.lat}
         longitude={center.lng}
         scale={13}
@@ -189,9 +175,7 @@ export default function MapPage() {
         onMarkerTap={(e) => {
           const m = markers.find((x) => x.id === Number(e.detail.markerId));
           if (!m) return;
-          setSelected((prev) =>
-            prev && prev.id === m.id ? null : m,
-          );
+          setSelected((prev) => (prev && prev.id === m.id ? null : m));
         }}
       />
       {selected && (
@@ -205,23 +189,18 @@ export default function MapPage() {
                 : `需要 ${selected.seats ?? '-'} 座`}
             </View>
           </View>
+          {priceLabel && <Text className="trip-sheet__price">{priceLabel}</Text>}
           {priceLabel && (
-            <Text className="trip-sheet__price">{priceLabel}</Text>
-          )}
-          {mode === 'driver' && (
             <Text className="trip-sheet__hint">
-              司机端仅可查看，不可主动联系
+              费用为成本分摊参考，具体请与对方线下协商确定，平台不参与费用往来
             </Text>
           )}
-          {mode === 'passenger' && (
-            <Text className="trip-sheet__hint">确认同行后可联系司机</Text>
+          {mode === 'driver' && (
+            <Text className="trip-sheet__hint">司机端仅可查看，不可主动联系</Text>
           )}
+          {mode === 'passenger' && <Text className="trip-sheet__hint">确认同行后可联系司机</Text>}
           <View className="trip-sheet__actions">
-            <Button
-              className="trip-sheet__btn"
-              type="primary"
-              onClick={() => openDetail(selected)}
-            >
+            <Button className="trip-sheet__btn eg-btn-primary" onClick={() => openDetail(selected)}>
               查看详情
             </Button>
           </View>

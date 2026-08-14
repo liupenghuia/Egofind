@@ -1,0 +1,8 @@
+@use '../../styles/tokens.scss' as *;
+
+.feedback__textarea {
+  background: $color-bg-card;
+  padding: $space-sm;
+  width: 100%;
+  box-sizing: border-box;
+}

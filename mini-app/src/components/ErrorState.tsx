@@ -6,21 +6,13 @@ type Props = {
   onRetry?: () => void;
 };
 
-export function ErrorState({
-  title = '加载失败',
-  message,
-  onRetry,
-}: Props) {
+export function ErrorState({ title = '加载失败', message, onRetry }: Props) {
   return (
     <View className="eg-empty">
-      <Text style={{ fontSize: 30, fontWeight: 600, color: '#ff4d4f' }}>
-        {title}
-      </Text>
-      {message ? (
-        <View style={{ marginTop: 12, lineHeight: 1.5 }}>{message}</View>
-      ) : null}
+      <Text className="eg-empty__title eg-empty__title--danger">{title}</Text>
+      {message ? <View className="eg-empty__desc">{message}</View> : null}
       {onRetry ? (
-        <Button className="eg-btn-primary" style={{ marginTop: 24, width: '60%' }} onClick={onRetry}>
+        <Button className="eg-btn-primary eg-empty__action" onClick={onRetry}>
           重试
         </Button>
       ) : null}

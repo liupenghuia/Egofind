@@ -9,13 +9,7 @@ type Props = {
   symbol?: string;
 };
 
-export function EmptyState({
-  title,
-  desc,
-  actionText,
-  onAction,
-  symbol = '🚗',
-}: Props) {
+export function EmptyState({ title, desc, actionText, onAction, symbol = '🚗' }: Props) {
   return (
     <View className="eg-empty">
       <View className="eg-empty__illus" aria-hidden>
@@ -24,11 +18,7 @@ export function EmptyState({
       <Text className="eg-empty__title">{title}</Text>
       {desc ? <Text className="eg-empty__desc">{desc}</Text> : null}
       {actionText && onAction ? (
-        <Button
-          className="eg-btn-primary"
-          style={{ marginTop: 24, width: '60%' }}
-          onClick={onAction}
-        >
+        <Button className="eg-btn-primary eg-empty__action" onClick={onAction}>
           {actionText}
         </Button>
       ) : null}

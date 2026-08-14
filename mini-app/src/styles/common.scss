@@ -65,6 +65,32 @@
   line-height: $tap-min !important;
 }
 
+.eg-row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.eg-picker-row {
+  display: flex;
+  gap: $space-sm;
+  margin-top: $space-xs;
+}
+
+.eg-picker-option {
+  flex: 1;
+  text-align: center;
+}
+
+.eg-input {
+  background: $color-bg-muted;
+  padding: $space-sm;
+  border-radius: $radius-md;
+  margin-top: $space-xs;
+  box-sizing: border-box;
+  width: 100%;
+}
+
 .eg-btn-danger-text {
   color: $color-danger !important;
   background: transparent !important;
@@ -109,12 +135,21 @@
   color: $color-text-primary;
 }
 
+.eg-empty__title--danger {
+  color: $color-danger;
+}
+
 .eg-empty__desc {
   margin-top: $space-sm;
   font-size: $font-sm;
   color: $color-text-secondary;
   line-height: 1.5;
   max-width: 560px;
+}
+
+.eg-empty__action {
+  margin-top: $space-md;
+  width: 60%;
 }
 
 .eg-loading {
@@ -239,4 +274,119 @@
   padding: $space-sm $space-md;
   font-size: $font-sm;
   margin-bottom: $space-md;
+}
+
+// --- Spacing utilities (token scale only; use instead of inline style={{ marginTop: N }}) ---
+.mt-xs {
+  margin-top: $space-xs;
+}
+.mt-sm {
+  margin-top: $space-sm;
+}
+.mt-md {
+  margin-top: $space-md;
+}
+.mt-lg {
+  margin-top: $space-lg;
+}
+.mt-xl {
+  margin-top: $space-xl;
+}
+.mb-xs {
+  margin-bottom: $space-xs;
+}
+.mb-sm {
+  margin-bottom: $space-sm;
+}
+.mb-md {
+  margin-bottom: $space-md;
+}
+.ml-xs {
+  margin-left: $space-xs;
+}
+.ml-sm {
+  margin-left: $space-sm;
+}
+
+// --- Text color utilities ---
+.text-brand {
+  color: $color-brand;
+}
+.text-driver {
+  color: $color-driver;
+}
+.text-success {
+  color: $color-success;
+}
+.text-warning {
+  color: $color-warning;
+}
+.text-danger {
+  color: $color-danger;
+}
+.text-secondary {
+  color: $color-text-secondary;
+}
+.text-primary {
+  color: $color-text-primary;
+}
+
+// --- Font size utilities (font-md is the page default, no utility needed) ---
+.fs-xs {
+  font-size: $font-xs;
+}
+.fs-sm {
+  font-size: $font-sm;
+}
+.fs-lg {
+  font-size: $font-lg;
+}
+.fs-xl {
+  font-size: $font-xl;
+}
+.fs-xxl {
+  font-size: $font-xxl;
+}
+
+// --- Weight utility (used to pair with text-* color utilities on emphasis lines) ---
+.fw-500 {
+  font-weight: 500;
+}
+.fw-600 {
+  font-weight: 600;
+}
+.fw-700 {
+  font-weight: 700;
+}
+
+// --- Compact inline button (auto width, keeps eg-btn-* colors/height) ---
+.btn-auto {
+  width: auto;
+  padding: 0 $space-md;
+}
+
+// --- StarRating component ---
+.star-rating {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: $space-sm 0;
+}
+
+.star-rating__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.star-rating__star {
+  line-height: 1;
+}
+
+.star-rating__star--on {
+  color: $color-warning;
+}
+
+.star-rating__star--off {
+  color: $color-border;
 }

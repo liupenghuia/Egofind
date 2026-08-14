@@ -4,16 +4,9 @@ import { useState } from 'react';
 import { createPassengerRequest } from '../../services/trips';
 import { choosePlace, type Place } from '../../utils/location';
 import { PageShell } from '../../components/PageShell';
-import {
-  combineLocalIso,
-  defaultTimeWindow,
-  formatLocalLabel,
-} from '../../utils/datetime';
+import { combineLocalIso, defaultTimeWindow, formatLocalLabel } from '../../utils/datetime';
 import { handleActionError } from '../../utils/legal-guard';
-import {
-  ensurePhoneBound,
-  handlePhoneRequiredError,
-} from '../../utils/phone-guard';
+import { ensurePhoneBound, handlePhoneRequiredError } from '../../utils/phone-guard';
 
 export default function PublishPassenger() {
   const tw = defaultTimeWindow();
@@ -101,8 +94,7 @@ export default function PublishPassenger() {
           {origin ? origin.name : '选择出发地'}
         </Button>
         <Button
-          className="eg-btn-secondary"
-          style={{ marginTop: 12 }}
+          className="eg-btn-secondary mt-sm"
           onClick={async () => {
             try {
               setDest(await choosePlace('目的地'));
@@ -118,34 +110,24 @@ export default function PublishPassenger() {
       <View className="eg-card">
         <View className="eg-section-title">期望时间窗</View>
         <View className="eg-muted">最早</View>
-        <View style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+        <View className="eg-picker-row">
           <Picker mode="date" value={startDate} onChange={(e) => setStartDate(e.detail.value)}>
-            <View className="eg-btn-secondary" style={{ flex: 1, textAlign: 'center' }}>
-              {startDate}
-            </View>
+            <View className="eg-btn-secondary eg-picker-option">{startDate}</View>
           </Picker>
           <Picker mode="time" value={startTime} onChange={(e) => setStartTime(e.detail.value)}>
-            <View className="eg-btn-secondary" style={{ flex: 1, textAlign: 'center' }}>
-              {startTime}
-            </View>
+            <View className="eg-btn-secondary eg-picker-option">{startTime}</View>
           </Picker>
         </View>
-        <View className="eg-muted" style={{ marginTop: 16 }}>
-          最晚
-        </View>
-        <View style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+        <View className="eg-muted mt-sm">最晚</View>
+        <View className="eg-picker-row">
           <Picker mode="date" value={endDate} onChange={(e) => setEndDate(e.detail.value)}>
-            <View className="eg-btn-secondary" style={{ flex: 1, textAlign: 'center' }}>
-              {endDate}
-            </View>
+            <View className="eg-btn-secondary eg-picker-option">{endDate}</View>
           </Picker>
           <Picker mode="time" value={endTime} onChange={(e) => setEndTime(e.detail.value)}>
-            <View className="eg-btn-secondary" style={{ flex: 1, textAlign: 'center' }}>
-              {endTime}
-            </View>
+            <View className="eg-btn-secondary eg-picker-option">{endTime}</View>
           </Picker>
         </View>
-        <View className="eg-muted" style={{ marginTop: 12 }}>
+        <View className="eg-muted mt-sm">
           {formatLocalLabel(startDate, startTime)} ~ {formatLocalLabel(endDate, endTime)}
         </View>
       </View>
@@ -157,16 +139,9 @@ export default function PublishPassenger() {
           value={seats}
           type="number"
           onInput={(e) => setSeats(e.detail.value)}
-          style={{ background: '#f5f6f8', padding: 12, borderRadius: 8, marginTop: 8 }}
+          className="eg-input"
         />
-        <View
-          style={{
-            marginTop: 16,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
+        <View className="eg-row-between mt-sm">
           <Text>公开（司机地图可见）</Text>
           <Switch checked={isPublic} onChange={(e) => setIsPublic(!!e.detail.value)} />
         </View>

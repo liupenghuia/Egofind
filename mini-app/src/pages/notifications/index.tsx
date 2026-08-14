@@ -11,6 +11,7 @@ import { PageShell } from '../../components/PageShell';
 import { EmptyState } from '../../components/EmptyState';
 import { LoadingBlock } from '../../components/LoadingBlock';
 import { ErrorState } from '../../components/ErrorState';
+import './index.scss';
 
 function formatTime(iso?: string) {
   if (!iso) return '';
@@ -72,9 +73,7 @@ export default function NotificationsPage() {
       try {
         await markNotificationRead(n.id);
         setItems((prev) =>
-          prev.map((x) =>
-            x.id === n.id ? { ...x, readAt: new Date().toISOString() } : x,
-          ),
+          prev.map((x) => (x.id === n.id ? { ...x, readAt: new Date().toISOString() } : x)),
         );
       } catch {
         /* ignore */
@@ -97,28 +96,17 @@ export default function NotificationsPage() {
 
   return (
     <PageShell>
-      <View
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 8,
-        }}
-      >
-        <Text style={{ fontSize: 34, fontWeight: 600 }}>
-          消息{unread ? `（${unread}）` : ''}
-        </Text>
+      <View className="eg-row-between mb-xs">
+        <Text className="fs-xl fw-600">消息{unread ? `（${unread}）` : ''}</Text>
         {items.length > 0 && (
-          <Button className="eg-btn-secondary" style={{ width: 'auto', padding: '0 24px' }} onClick={onReadAll}>
+          <Button className="eg-btn-secondary btn-auto" onClick={onReadAll}>
             全部已读
           </Button>
         )}
       </View>
 
       {loading && <LoadingBlock />}
-      {!loading && error && (
-        <ErrorState message={error} onRetry={() => load()} />
-      )}
+      {!loading && error && <ErrorState message={error} onRetry={() => load()} />}
       {!loading && !error && !items.length && (
         <EmptyState title="暂无消息" desc="确认同行、行程完成、认证结果会出现在这里" />
       )}
@@ -130,21 +118,12 @@ export default function NotificationsPage() {
           return (
             <View
               key={n.id}
-              className="eg-card"
+              className={`eg-card ${unreadItem ? 'notification-item--unread' : 'notification-item--read'}`}
               onClick={() => onTap(n)}
-              style={{
-                borderLeft: unreadItem
-                  ? '6px solid #1677ff'
-                  : '6px solid transparent',
-              }}
             >
-              <Text style={{ fontWeight: unreadItem ? 700 : 500, fontSize: 28 }}>
-                {n.title}
-              </Text>
-              <View className="eg-muted" style={{ marginTop: 8 }}>
-                {n.body}
-              </View>
-              <View className="eg-muted" style={{ marginTop: 8, fontSize: 22 }}>
+              <Text className={unreadItem ? 'fw-700' : 'fw-500'}>{n.title}</Text>
+              <View className="eg-muted mt-xs">{n.body}</View>
+              <View className="eg-muted mt-xs fs-xs">
                 {formatTime(n.createdAt)}
                 {unreadItem ? ' · 未读' : ''}
               </View>

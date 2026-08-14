@@ -8,16 +8,10 @@ import {
 } from '../../services/trips';
 import { choosePlace, type Place } from '../../utils/location';
 import { PageShell } from '../../components/PageShell';
-import {
-  combineLocalIso,
-  defaultTimeWindow,
-  formatLocalLabel,
-} from '../../utils/datetime';
+import { combineLocalIso, defaultTimeWindow, formatLocalLabel } from '../../utils/datetime';
 import { handleActionError } from '../../utils/legal-guard';
-import {
-  ensurePhoneBound,
-  handlePhoneRequiredError,
-} from '../../utils/phone-guard';
+import { ensurePhoneBound, handlePhoneRequiredError } from '../../utils/phone-guard';
+import './index.scss';
 
 export default function PublishDriver() {
   const tw = defaultTimeWindow();
@@ -146,18 +140,12 @@ export default function PublishDriver() {
       {needVerify && (
         <View className="eg-banner-warn">
           尚未通过司机认证，无法发布。
-          <Button
-            className="eg-btn-primary"
-            style={{ marginLeft: 8, display: 'inline-block', width: 'auto', padding: '0 24px', minHeight: 64, lineHeight: '64px' }}
-            onClick={promptVerify}
-          >
+          <Button className="eg-btn-primary publish-driver__verify-btn" onClick={promptVerify}>
             去认证
           </Button>
         </View>
       )}
-      {restrictedMsg && (
-        <View className="eg-banner-danger">{restrictedMsg}</View>
-      )}
+      {restrictedMsg && <View className="eg-banner-danger">{restrictedMsg}</View>}
 
       <View className="eg-card">
         <View className="eg-section-title">路线</View>
@@ -174,8 +162,7 @@ export default function PublishDriver() {
           {origin ? origin.name : '选择出发地'}
         </Button>
         <Button
-          className="eg-btn-secondary"
-          style={{ marginTop: 12 }}
+          className="eg-btn-secondary mt-sm"
           onClick={async () => {
             try {
               setDest(await choosePlace('目的地'));
@@ -187,7 +174,7 @@ export default function PublishDriver() {
           {dest ? dest.name : '选择目的地'}
         </Button>
         {(origin?.adcode || dest?.adcode) && (
-          <View className="eg-muted" style={{ marginTop: 12 }}>
+          <View className="eg-muted mt-sm">
             区县 {origin?.adcode || '-'} → {dest?.adcode || '-'}
           </View>
         )}
@@ -196,42 +183,24 @@ export default function PublishDriver() {
       <View className="eg-card">
         <View className="eg-section-title">出发时间窗</View>
         <View className="eg-muted">最早出发</View>
-        <View style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-          <Picker
-            mode="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.detail.value)}
-          >
-            <View className="eg-btn-secondary" style={{ flex: 1, textAlign: 'center' }}>
-              {startDate}
-            </View>
+        <View className="eg-picker-row">
+          <Picker mode="date" value={startDate} onChange={(e) => setStartDate(e.detail.value)}>
+            <View className="eg-btn-secondary eg-picker-option">{startDate}</View>
           </Picker>
-          <Picker
-            mode="time"
-            value={startTime}
-            onChange={(e) => setStartTime(e.detail.value)}
-          >
-            <View className="eg-btn-secondary" style={{ flex: 1, textAlign: 'center' }}>
-              {startTime}
-            </View>
+          <Picker mode="time" value={startTime} onChange={(e) => setStartTime(e.detail.value)}>
+            <View className="eg-btn-secondary eg-picker-option">{startTime}</View>
           </Picker>
         </View>
-        <View className="eg-muted" style={{ marginTop: 16 }}>
-          最晚出发
-        </View>
-        <View style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+        <View className="eg-muted mt-sm">最晚出发</View>
+        <View className="eg-picker-row">
           <Picker mode="date" value={endDate} onChange={(e) => setEndDate(e.detail.value)}>
-            <View className="eg-btn-secondary" style={{ flex: 1, textAlign: 'center' }}>
-              {endDate}
-            </View>
+            <View className="eg-btn-secondary eg-picker-option">{endDate}</View>
           </Picker>
           <Picker mode="time" value={endTime} onChange={(e) => setEndTime(e.detail.value)}>
-            <View className="eg-btn-secondary" style={{ flex: 1, textAlign: 'center' }}>
-              {endTime}
-            </View>
+            <View className="eg-btn-secondary eg-picker-option">{endTime}</View>
           </Picker>
         </View>
-        <View className="eg-muted" style={{ marginTop: 12 }}>
+        <View className="eg-muted mt-sm">
           {formatLocalLabel(startDate, startTime)} ~ {formatLocalLabel(endDate, endTime)}
         </View>
       </View>
@@ -243,41 +212,31 @@ export default function PublishDriver() {
           value={seats}
           type="number"
           onInput={(e) => setSeats(e.detail.value)}
-          style={{ background: '#f5f6f8', padding: 12, borderRadius: 8, marginTop: 8 }}
+          className="eg-input"
         />
-        <View className="eg-muted" style={{ marginTop: 16 }}>
-          分摊价（元/人，可选）
-        </View>
+        <View className="eg-muted mt-sm">分摊价（元/人，可选）</View>
         <Input
           value={price}
           type="digit"
           onInput={(e) => setPrice(e.detail.value)}
-          style={{ background: '#f5f6f8', padding: 12, borderRadius: 8, marginTop: 8 }}
+          className="eg-input"
         />
-        <View className="eg-muted" style={{ marginTop: 16 }}>
-          车牌（认证资料优先）
+        <View className="eg-muted mt-xs fs-xs">
+          费用为成本分摊参考，具体请与对方线下协商确定，平台不参与费用往来
         </View>
+        <View className="eg-muted mt-sm">车牌（认证资料优先）</View>
         <Input
           value={plateNo}
           onInput={(e) => setPlateNo(e.detail.value)}
           placeholder="如 冀A12345"
-          style={{ background: '#f5f6f8', padding: 12, borderRadius: 8, marginTop: 8 }}
+          className="eg-input"
         />
-        <View className="eg-muted" style={{ marginTop: 16 }}>
-          备注
-        </View>
+        <View className="eg-muted mt-sm">备注</View>
         <Textarea
           value={remark}
           onInput={(e) => setRemark(e.detail.value)}
-          style={{
-            background: '#f5f6f8',
-            padding: 12,
-            borderRadius: 8,
-            marginTop: 8,
-            width: '100%',
-            minHeight: 100,
-            boxSizing: 'border-box',
-          }}
+          className="eg-input"
+          style={{ minHeight: 100 }}
         />
       </View>
 

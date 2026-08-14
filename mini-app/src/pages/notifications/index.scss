@@ -1,0 +1,9 @@
+@use '../../styles/tokens.scss' as *;
+
+.notification-item--unread {
+  border-left: 6px solid $color-brand;
+}
+
+.notification-item--read {
+  border-left: 6px solid transparent;
+}
